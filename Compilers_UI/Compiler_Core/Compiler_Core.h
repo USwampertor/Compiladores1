@@ -1,6 +1,6 @@
 // Compiler_Core.h
-
 #pragma once
+#include "windows.h"
 #include "Compiler_ErrorModule.h"
 #include "Compiler_Lexicon.h"
 using namespace System;
@@ -18,6 +18,5 @@ namespace CompilerCore {
 		Compiler_Lexicon * m_LexiconModule;
 		//ErrorModule Class
 		Compiler_ErrorModule^ m_ErrorModule;
-		// TODO: agregar aquí los métodos de la clase.
 	};
 }

@@ -2,7 +2,12 @@
 
 using namespace System;
 namespace CompilerCore {
-
+	public enum class ERROR_PHASE
+	{
+		LEXICO,
+		SINTACTICO,
+		SEMANTICO
+	};
 	public ref class Compiler_ErrorModule
 	{
 	public:
@@ -18,10 +23,5 @@ namespace CompilerCore {
 		cli::array<String^>^m_Error;
 	};
 	
-	public enum class ERROR_PHASE
-	{
-		LEXICO,
-		SINTACTICO,
-		SEMANTICO
-	};
+	
 }

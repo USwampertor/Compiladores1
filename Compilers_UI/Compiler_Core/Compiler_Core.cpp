@@ -5,9 +5,9 @@
 using namespace CompilerCore;
 Manager::Manager()
 {
-	//Contructor
-	m_LexiconModule = new Compiler_Lexicon();
+	//Constructor
 	m_ErrorModule = gcnew Compiler_ErrorModule();
+	m_LexiconModule = new Compiler_Lexicon(m_ErrorModule);
 }
 Manager::~Manager()
 {
@@ -18,17 +18,22 @@ Manager::~Manager()
 cli::array<String^>^ Manager::Compile(String^ src)
 {
 	//this is our entry to the DLL
-	//src is refering to ALL the code the user put in our inputTextBox
+	//src is referring to ALL the code the user put in our inputTextBox
 	cli::array<String^>^ compilationDetails;
 	compilationDetails = gcnew cli::array<String^>(1);
-	compilationDetails[0] = gcnew String("Hola Mundo");
-	//gcnew doesnt need a delete like new, if context dies, gcnew goes down with it
+	compilationDetails[0] = gcnew String("Hello World");
+	//gcnew doesn't need a delete like new, if context dies, gcnew goes down with it
 
 	///First Stage: Parser/Lexicon stage
-	while ()
+	while (true)
 	{
+		m_LexiconModule->ParseSourceCode((const char*)System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(src).ToPointer());
 	}
+	///Second Stage: Syntactic stage
 
+	///Third Stage: Semantic stage
+
+	///Finished everything up
 	//You have to sent the compiling errors around here
 	//m_ErrorModule->AddError();
 
