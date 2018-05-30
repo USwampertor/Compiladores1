@@ -15,7 +15,8 @@ namespace CompilerCore {
 		START,
 		PARSING_ID,
 		PARSING_INT,
-		PARSING_CHAR
+		PARSING_CHAR,
+		PARSING_FLOAT
 	};
 
 	
