@@ -15,11 +15,32 @@ namespace CompilerCore {
 		START,
 		PARSING_ID,
 		PARSING_INT,
+		PARSING_FLOAT,
 		PARSING_CHAR,
-		PARSING_FLOAT
+		PARSING_RELATIONAL,
+		PARSING_ARITHMETIC,
+		PARSING_LOGICAL,
+		PARSING_SEPARATOR,
+		PARSING_DIMENSION,
+		PARSING_GROUPING,
+		PARSING_COMMENTARY
 	};
 
-	
+		/*
+		ID,
+		INT,
+		FLOAT,
+		STRING,
+		KEYWORD,
+		RELATIONAL_OP,
+		ARITHMETIC_OP,
+		LOGICAL_OP,
+		NEGATION_OP,
+		SEPARATOR,
+		ASIGN,
+		DIMENSIONS,
+		GROUPING
+		*/
 	public class Compiler_Lexicon
 	{
 	private:
@@ -29,6 +50,7 @@ namespace CompilerCore {
 	public:
 		Compiler_Lexicon(Compiler_ErrorModule^ errormodule);
 		void AddToken(std::string lex, TOKEN_TYPE type, int line);
+		void ClearToken();
 		~Compiler_Lexicon();
 		bool ParseSourceCode(const char* src);
 		LEXIC_STATE m_LexState;

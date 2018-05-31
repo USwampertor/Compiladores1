@@ -5,6 +5,7 @@ using namespace CompilerCore;
 
 Compiler_ErrorModule::Compiler_ErrorModule()
 {
+	m_MaxErrors = 15;
 }
 Compiler_ErrorModule::~Compiler_ErrorModule()
 {
@@ -12,7 +13,7 @@ Compiler_ErrorModule::~Compiler_ErrorModule()
 }
 void Compiler_ErrorModule::AddError(ERROR_PHASE phase, int numLine, String^ sDesc, String^ sLine)
 {
-
+	m_NumErrorsLex++;
 }
 int Compiler_ErrorModule::ReturnNumberErrors()
 {

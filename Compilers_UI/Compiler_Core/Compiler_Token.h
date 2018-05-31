@@ -17,7 +17,7 @@ namespace CompilerCore{
 		NEGATION_OP,
 		SEPARATOR,
 		ASIGN,
-		DIMESIONS,
+		DIMENSIONS,
 		GROUPING
 	};
 

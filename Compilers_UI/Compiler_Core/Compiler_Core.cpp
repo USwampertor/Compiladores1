@@ -25,17 +25,13 @@ cli::array<String^>^ Manager::Compile(String^ src)
 	//gcnew doesn't need a delete like new, if context dies, gcnew goes down with it
 
 	///First Stage: Parser/Lexicon stage
-	while (true)
-	{
-		m_LexiconModule->ParseSourceCode((const char*)System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(src).ToPointer());
-	}
+	m_LexiconModule->ParseSourceCode((const char*)System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(src).ToPointer());
+	
 	///Second Stage: Syntactic stage
 
 	///Third Stage: Semantic stage
 
 	///Finished everything up
-	//You have to sent the compiling errors around here
-	//m_ErrorModule->AddError();
 
 	//After compiling, you can return everything in the same string^, just separate the code from the tokens
 	//you show the tokens in the debug
