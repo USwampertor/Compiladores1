@@ -46,10 +46,16 @@ namespace CompilerCore {
 	private:
 		msclr::gcroot<Compiler_ErrorModule^> m_error;
 		std::vector<Compiler_Token*> m_Tokens;
-		std::map<std::string, std::string> m_KeyWordMap;
+		std::map<std::string,std::string> m_KeyWordMap;
+		int tokeniterator;
 	public:
+		void Clear();
 		Compiler_Lexicon(Compiler_ErrorModule^ errormodule);
+		const Compiler_Token* const GetNextToken();
+		const Compiler_Token* const PeekTokenAt(int offset);
 		void AddToken(std::string lex, TOKEN_TYPE type, int line);
+		void LexAddError(int line_num, char* desc, const char* line);
+		int GetNumTokens();
 		void ClearToken();
 		~Compiler_Lexicon();
 		bool ParseSourceCode(const char* src);

@@ -1,43 +1,52 @@
 #include "stdafx.h"
 #include "Compiler_Lexicon.h"
 #define DQUOTES 34
+#define NULLCHAR '\0';
 using namespace CompilerCore;
 Compiler_Lexicon::Compiler_Lexicon(Compiler_ErrorModule^ errormodule)
 {
 	m_error = errormodule;
-	/*
-	Should we start the keywordmap with this keywords here?
-	var
-	int
-	float
-	bool
-	string
-	function
-	main
-	if
-	else
-	while
-	for
-	switch
-	default
-	return
-	case*/
+	tokeniterator = -1;
+	m_KeyWordMap.insert(std::make_pair("var", "var"));
+	m_KeyWordMap.insert(std::make_pair("int", "int"));
+	m_KeyWordMap.insert(std::make_pair("float", "float"));
+	m_KeyWordMap.insert(std::make_pair("bool", "bool"));
+	m_KeyWordMap.insert(std::make_pair("string", "string"));
+	m_KeyWordMap.insert(std::make_pair("function", "function"));
+	m_KeyWordMap.insert(std::make_pair("main", "main"));
+	m_KeyWordMap.insert(std::make_pair("if", "if"));
+	m_KeyWordMap.insert(std::make_pair("else", "else"));
+	m_KeyWordMap.insert(std::make_pair("while", "while"));
+	m_KeyWordMap.insert(std::make_pair("for", "for"));
+	m_KeyWordMap.insert(std::make_pair("switch", "default"));
+	m_KeyWordMap.insert(std::make_pair("default", "default"));
+	m_KeyWordMap.insert(std::make_pair("return", "return"));
+	m_KeyWordMap.insert(std::make_pair("case", "case"));
+
 }
 
 
 Compiler_Lexicon::~Compiler_Lexicon()
 {
 }
+void Compiler_Lexicon::Clear()
+{
+	m_error->Clear();
+	m_LexState=LEXIC_STATE::START;
+	m_Tokens.clear();
+	tokeniterator = -1;
+}
 bool Compiler_Lexicon::ParseSourceCode(const char* src)
 {
-	//Both bools help us to see a sub state of commentary and string states
+	//Both bool variables help us to see a sub state of commentary and string states
 	bool iscommentary = false, isstring = false;
-	int iCurrentLine = -1;
+	int ended = 2;
+	int iCurrentLine = 1;
 	const  char* cCurrChar = src;
 	const char* cCurrLine = src;
 	std::string sTokenBuffer;
 	m_LexState = LEXIC_STATE::START;
-	while (cCurrChar != NULL)
+	while (ended>0 && m_error->ReturnNumberErrors() <= m_error->ReturnMaxErrors())
 	{
 		switch (m_LexState)
 		{
@@ -112,16 +121,32 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 				//We found a TAB, we just let pass the fucker
 				cCurrChar++;
 			}
-			else if (*cCurrChar == 13)
+			else if (*cCurrChar == '\r')
 			{
-				//We found an ENTER, we change lines and let pass the fucker
+				//We are doing a \r\n shit
+				if (isstring)
+				{
+					//We made an enter before closing the string, so that's a no no and we throw an error
+					LexAddError(iCurrentLine, "Changed lines before closing a string", cCurrLine);
+				}
+				else
+				{
+					//We found an ENTER, we change lines and let pass the fucker
+					cCurrChar++;
+					cCurrChar++;
+					iCurrentLine++;
+					cCurrLine = cCurrChar;
+				}
+			}
+			else if (*cCurrChar == 32)
+			{
+				//Found a space, we let that bastard pass
 				cCurrChar++;
-				iCurrentLine++;
 			}
 			else
 			{
 				//This shit is not processable, its an invalid character and therefore we found an error
-				//m_error->AddError();
+				LexAddError(iCurrentLine, "Invalid character ", cCurrLine);
 			}
 			break;
 		//Parsing ID
@@ -170,13 +195,15 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 				sTokenBuffer.append(cCurrChar, 1);
 				cCurrChar++;
 			}
+			else if (sTokenBuffer.back()=='.')
+			{
+				//We throw an error here because it means we have a 5.a or 5.# or some shit like that
+				LexAddError(iCurrentLine, "Your float is not really completed m8", cCurrLine);
+				m_LexState = LEXIC_STATE::START;
+				
+			}
 			else
 			{
-				if (sTokenBuffer.back()=='.')
-				{
-					//We throw an error here because it means we have a 5.a or 5.# or some shit like that
-					//m_error->AddError(ERROR_PHASE::LEXICO,iCurrentLine,"",cCurrLine);
-				}
 				AddToken(sTokenBuffer, TOKEN_TYPE::FLOAT, iCurrentLine);
 				m_LexState = LEXIC_STATE::START;
 			}
@@ -208,19 +235,28 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 		case LEXIC_STATE::PARSING_RELATIONAL:
 			if (*cCurrChar == '=' && sTokenBuffer.back() == '>' || sTokenBuffer.back() == '<' || sTokenBuffer.back() == '=' || sTokenBuffer.back() == '!')
 			{
+				//That means we have either a <= >= == or !=
 				sTokenBuffer.append(cCurrChar, 1);
 				cCurrChar++;
 				AddToken(sTokenBuffer, TOKEN_TYPE::RELATIONAL_OP, iCurrentLine);
 				m_LexState = LEXIC_STATE::START;
 			}
-			else 
+			else if (*cCurrChar == sTokenBuffer.back())
+			{
+				//We either have a << or >> or !!, and that is a no no
+				LexAddError(iCurrentLine, "Invalid relational operators m8", cCurrLine);
+				m_LexState = LEXIC_STATE::START;
+			}
+			else
 			{
 				if (sTokenBuffer.back() == '=')
 				{
+					//We have a = and some other things next, therefore we can start processing the = and later work on the other object
 					AddToken(sTokenBuffer, TOKEN_TYPE::ASIGN, iCurrentLine);
 				}
-				if (sTokenBuffer.back() == '!')
+				else if (sTokenBuffer.back() == '!')
 				{
+					//We have a ! and some other things next, therefore we can start processing the = and later work on the other object
 					AddToken(sTokenBuffer, TOKEN_TYPE::NEGATION_OP, iCurrentLine);
 				}
 				else
@@ -232,6 +268,7 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 			break;
 		//Parsing GROUPING
 		case LEXIC_STATE::PARSING_GROUPING:
+			m_LexState = LEXIC_STATE::START;
 			break;
 		//Parsing LOGICAL
 		case LEXIC_STATE::PARSING_LOGICAL:
@@ -247,11 +284,14 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 				if (sTokenBuffer.back() == '&')
 				{
 					//Throw error of invalid logical AND operator
+					LexAddError(iCurrentLine, "Invalid AND operator syntax m8", cCurrLine);
 				}
 				else if (sTokenBuffer.back() == '|')
 				{					
 					//Throw error of invalid logical OR operator
+					LexAddError(iCurrentLine, "Invalid OR operator syntax m8", cCurrLine);
 				}
+				m_LexState = LEXIC_STATE::START;
 			}
 			break;
 		//Parsing CHARACTERS
@@ -259,7 +299,7 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 			//I'm using this state to process strings
 			if (*cCurrChar != DQUOTES)
 			{
-				//We are just feeding the string beast until he's satisfied and closes itself
+				//We are just feeding the string beast until he's satisfied and is closed
 				sTokenBuffer.append(cCurrChar, 1);
 				cCurrChar++;
 			}
@@ -292,7 +332,7 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 			break;
 		//Parsing SEPARATOR
 		case LEXIC_STATE::PARSING_SEPARATOR:
-			if (*cCurrChar != ',' || *cCurrChar != ':' || *cCurrChar != ';' && isalpha(*cCurrChar))
+			if (*cCurrChar != ',' || *cCurrChar != ':' || *cCurrChar != ';' && isalpha(*cCurrChar) || isdigit(*cCurrChar))
 			{
 				//Normally after this objects a char continues, so I'm taking that guess
 				AddToken(sTokenBuffer, TOKEN_TYPE::SEPARATOR, iCurrentLine);
@@ -301,14 +341,38 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 			else
 			{
 				//This means we have something like ;, or ,: or :; etc. That shit's wack
-				//m_error->AddError();
+				LexAddError(iCurrentLine, "you have a weird shit m8", cCurrLine);
 			}
 			break;
 
 		}
+		//Check if there's still something before closing the string
+		if (*cCurrChar == '\0'&&sTokenBuffer.size() > 0)
+		{
+			--ended;
+			/*TOKEN_TYPE token;
+			SelectToken(m_LexState, token);
+			AddToken(sTokenBuffer, token, iCurrentLine);*/
+		}
+		if (*cCurrChar == '\0'&& sTokenBuffer.size() == 0)
+		{
+			ended = 0;
+		}
+
+	} 
+	if (isstring)
+	{
+		//We throw an error because the string was never closed
+		LexAddError(iCurrentLine, "Never closed the string", cCurrLine);
 	}
-	return src;
+	if (iscommentary)
+	{
+		//We throw an error because comment was never closed
+		LexAddError(iCurrentLine, "Never closed the comment", cCurrLine);
+	}
+	return m_error->ReturnNumberErrors() == 0;
 }
+
 void Compiler_Lexicon::AddToken(std::string lex, CompilerCore::TOKEN_TYPE type, int line)
 {
 	Compiler_Token* p = new Compiler_Token(lex, type, line);
@@ -317,4 +381,53 @@ void Compiler_Lexicon::AddToken(std::string lex, CompilerCore::TOKEN_TYPE type, 
 void Compiler_Lexicon::ClearToken()
 {
 	m_Tokens.clear();
+}
+void Compiler_Lexicon::LexAddError(int line_num, char* desc, const char* line)
+{
+	String^ strDesc = gcnew String(desc);
+	String^ strLine = gcnew String(line);
+	m_error->AddError(ERROR_PHASE::LEXICO, line_num, strDesc, strLine);
+}
+const Compiler_Token* const Compiler_Lexicon::GetNextToken()
+{
+	++tokeniterator;
+	return m_Tokens[tokeniterator];
+}
+const Compiler_Token* const Compiler_Lexicon::PeekTokenAt(int offset)
+{
+	return m_Tokens[offset];
+}
+int Compiler_Lexicon::GetNumTokens()
+{
+	return m_Tokens.size();
+}
+void SelectToken(LEXIC_STATE state, CompilerCore::TOKEN_TYPE t)
+{
+	switch (state)
+	{
+	case CompilerCore::LEXIC_STATE::PARSING_ARITHMETIC:
+		t = CompilerCore::TOKEN_TYPE::ARITHMETIC_OP;
+		break;
+	case CompilerCore::LEXIC_STATE::PARSING_CHAR:
+		t = CompilerCore::TOKEN_TYPE::ARITHMETIC_OP;
+		break;
+	case CompilerCore::LEXIC_STATE::PARSING_COMMENTARY:
+		break;
+	case CompilerCore::LEXIC_STATE::PARSING_DIMENSION:
+		break;
+	case CompilerCore::LEXIC_STATE::PARSING_FLOAT:
+		break;
+	case CompilerCore::LEXIC_STATE::PARSING_GROUPING:
+		break;
+	case CompilerCore::LEXIC_STATE::PARSING_ID:
+		break;
+	case CompilerCore::LEXIC_STATE::PARSING_INT:
+		break;
+	case CompilerCore::LEXIC_STATE::PARSING_LOGICAL:
+		break;
+	case CompilerCore::LEXIC_STATE::PARSING_RELATIONAL:
+		break;
+	case CompilerCore::LEXIC_STATE::PARSING_SEPARATOR:
+		break;
+	}
 }

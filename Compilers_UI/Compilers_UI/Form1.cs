@@ -24,8 +24,24 @@ namespace Compilers_UI
         }
         private void compileToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            String[] compDetails = compiler.Compile("");
-            errorTextBox.Text = compDetails[0];
+            errorTextBox.Clear();
+            debugTextBox.Clear();
+            debugTextBox.Text += ("Initiating compilation..." + '\r' + '\n');
+            string toparse = inputTextBox.Text;
+            String[] compDetails = compiler.Compile(toparse);
+            debugTextBox.Text += ("Ended Compilation..." + '\r' + '\n');
+            int j = 0;
+            for(j = 0; j < compDetails.Length;++j)
+            {
+                if (compDetails[j] == "( ° w °)")
+                    break;
+                errorTextBox.Text += (compDetails[j] + '\r' + '\n');
+            }
+            for(int i = j+1; i<compDetails.Length;++i)
+            {
+                debugTextBox.Text += (compDetails[i] + '\r' + '\n');
+            }
+            if(j==0) errorTextBox.Text += "No errors found m8";
         }
     }
 }

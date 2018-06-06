@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-
+#include <map>
 namespace CompilerCore{
 
 	public enum class TOKEN_TYPE
@@ -27,10 +27,11 @@ namespace CompilerCore{
 		std::string m_Lexema;
 		TOKEN_TYPE m_TokenType;
 		int m_LineNumber;
+		std::map<int, std::string> m_TokenMap;
 	public:
 		Compiler_Token(std::string lex, TOKEN_TYPE type, int line);
-		std::string GetLex();
-		TOKEN_TYPE GetType();
+		const std::string GetLex() const;
+		const std::string GetType() const;
 		~Compiler_Token();
 	};
 
