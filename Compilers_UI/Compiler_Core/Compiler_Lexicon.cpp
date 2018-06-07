@@ -132,21 +132,27 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 				else
 				{
 					//We found an ENTER, we change lines and let pass the fucker
-					cCurrChar++;
-					cCurrChar++;
-					iCurrentLine++;
-					cCurrLine = cCurrChar;
+					
 				}
+				cCurrChar++;
+				cCurrChar++;
+				iCurrentLine++;
+				cCurrLine = cCurrChar;
 			}
 			else if (*cCurrChar == 32)
 			{
 				//Found a space, we let that bastard pass
 				cCurrChar++;
 			}
+			else if (*cCurrChar == '\0' && sTokenBuffer.size() > 0)
+			{
+				//Move along, move along
+			}
 			else
 			{
 				//This shit is not processable, its an invalid character and therefore we found an error
 				LexAddError(iCurrentLine, "Invalid character ", cCurrLine);
+				cCurrChar++;
 			}
 			break;
 		//Parsing ID
@@ -176,7 +182,7 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 				sTokenBuffer.append(cCurrChar, 1);
 				cCurrChar++;
 			}
-			if (*cCurrChar == '.')
+			else if (*cCurrChar == '.')
 			{
 				sTokenBuffer.append(cCurrChar, 1);
 				cCurrChar++;
@@ -233,7 +239,7 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 
 		//Parsing RELATIONAL
 		case LEXIC_STATE::PARSING_RELATIONAL:
-			if (*cCurrChar == '=' && sTokenBuffer.back() == '>' || sTokenBuffer.back() == '<' || sTokenBuffer.back() == '=' || sTokenBuffer.back() == '!')
+			if (*cCurrChar == '=' && (sTokenBuffer.back() == '>' || sTokenBuffer.back() == '<' || sTokenBuffer.back() == '=' || sTokenBuffer.back() == '!'))
 			{
 				//That means we have either a <= >= == or !=
 				sTokenBuffer.append(cCurrChar, 1);
@@ -268,6 +274,7 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 			break;
 		//Parsing GROUPING
 		case LEXIC_STATE::PARSING_GROUPING:
+			AddToken(sTokenBuffer, TOKEN_TYPE::RELATIONAL_OP, iCurrentLine);
 			m_LexState = LEXIC_STATE::START;
 			break;
 		//Parsing LOGICAL
@@ -297,11 +304,25 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 		//Parsing CHARACTERS
 		case LEXIC_STATE::PARSING_CHAR:
 			//I'm using this state to process strings
-			if (*cCurrChar != DQUOTES)
+			if (*cCurrChar != DQUOTES && *cCurrChar != '\r')
 			{
 				//We are just feeding the string beast until he's satisfied and is closed
 				sTokenBuffer.append(cCurrChar, 1);
 				cCurrChar++;
+			}
+			else if (*cCurrChar == '\r')
+			{
+				//We are doing a \r\n shit
+				if (isstring)
+				{
+					//We made an enter before closing the string, so that's a no no and we throw an error
+					LexAddError(iCurrentLine, "Changed lines before closing a string", cCurrLine);
+					cCurrChar++;
+					cCurrChar++;
+					iCurrentLine++;
+					cCurrLine = cCurrChar;
+					m_LexState = LEXIC_STATE::START;
+				}
 			}
 			else if (*cCurrChar == DQUOTES && isstring == true)
 			{
@@ -311,6 +332,7 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 				isstring = false;
 				AddToken(sTokenBuffer, TOKEN_TYPE::STRING, iCurrentLine);
 				m_LexState = LEXIC_STATE::START;
+				sTokenBuffer.clear();
 			}
 			break;
 		//Parsing COMMENTARY
@@ -321,8 +343,9 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 				sTokenBuffer.append(cCurrChar, 1);
 				cCurrChar++;
 				iscommentary = false;
-				AddToken(sTokenBuffer, TOKEN_TYPE::STRING, iCurrentLine);
+				//AddToken(sTokenBuffer, TOKEN_TYPE::STRING, iCurrentLine);
 				m_LexState = LEXIC_STATE::START;
+				sTokenBuffer.clear();
 			}
 			else
 			{
@@ -350,9 +373,6 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 		if (*cCurrChar == '\0'&&sTokenBuffer.size() > 0)
 		{
 			--ended;
-			/*TOKEN_TYPE token;
-			SelectToken(m_LexState, token);
-			AddToken(sTokenBuffer, token, iCurrentLine);*/
 		}
 		if (*cCurrChar == '\0'&& sTokenBuffer.size() == 0)
 		{
