@@ -44,8 +44,11 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 	int iCurrentLine = 1;
 	const  char* cCurrChar = src;
 	const char* cCurrLine = src;
+	int errorPosition = -1;
+	char cErrorBuffer[1000];
 	std::string sTokenBuffer;
 	m_LexState = LEXIC_STATE::START;
+	memset(cErrorBuffer, 0, sizeof(cErrorBuffer));
 	while (ended>0 && m_error->ReturnNumberErrors() <= m_error->ReturnMaxErrors())
 	{
 		switch (m_LexState)
@@ -116,10 +119,23 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 				cCurrChar++;
 				m_LexState = LEXIC_STATE::PARSING_SEPARATOR;
 			}
+			else if (*cCurrChar == '.')
+			{
+				sTokenBuffer.clear();
+				sTokenBuffer.append(cCurrChar, 1);
+				cCurrChar++;
+				m_LexState = LEXIC_STATE::PARSING_FLOAT;
+			}
 			else if (*cCurrChar == 9)
 			{
 				//We found a TAB, we just let pass the fucker
 				cCurrChar++;
+			}
+			else if (*cCurrChar == '\n')
+			{
+				cCurrChar++;
+				iCurrentLine++;
+				cCurrLine = cCurrChar;
 			}
 			else if (*cCurrChar == '\r')
 			{
@@ -127,7 +143,11 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 				if (isstring)
 				{
 					//We made an enter before closing the string, so that's a no no and we throw an error
-					LexAddError(iCurrentLine, "Changed lines before closing a string", cCurrLine);
+					errorPosition = cCurrChar - cCurrLine;
+					memcpy(cErrorBuffer, cCurrLine, errorPosition);
+					cErrorBuffer[errorPosition] = '\0';
+					LexAddError(iCurrentLine, "Changed lines before closing a string", cErrorBuffer);
+					isstring = false;
 				}
 				else
 				{
@@ -144,14 +164,17 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 				//Found a space, we let that bastard pass
 				cCurrChar++;
 			}
-			else if (*cCurrChar == '\0' && sTokenBuffer.size() > 0)
+			else if (*cCurrChar == '\0' /*&& sTokenBuffer.size() > 0*/)
 			{
 				//Move along, move along
 			}
 			else
 			{
 				//This shit is not processable, its an invalid character and therefore we found an error
-				LexAddError(iCurrentLine, "Invalid character ", cCurrLine);
+				errorPosition = cCurrChar - cCurrLine;
+				memcpy(cErrorBuffer, cCurrLine, errorPosition);
+				cErrorBuffer[errorPosition] = '\0';
+				LexAddError(iCurrentLine, "Invalid character ", cErrorBuffer);
 				cCurrChar++;
 			}
 			break;
@@ -204,7 +227,11 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 			else if (sTokenBuffer.back()=='.')
 			{
 				//We throw an error here because it means we have a 5.a or 5.# or some shit like that
-				LexAddError(iCurrentLine, "Your float is not really completed m8", cCurrLine);
+				cCurrChar++;
+				errorPosition = cCurrChar - cCurrLine;
+				memcpy(cErrorBuffer, cCurrLine, errorPosition);
+				cErrorBuffer[errorPosition] = '\0';
+				LexAddError(iCurrentLine, "Your float is not really completed m8", cErrorBuffer);
 				m_LexState = LEXIC_STATE::START;
 				
 			}
@@ -250,7 +277,10 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 			else if (*cCurrChar == sTokenBuffer.back())
 			{
 				//We either have a << or >> or !!, and that is a no no
-				LexAddError(iCurrentLine, "Invalid relational operators m8", cCurrLine);
+				errorPosition = cCurrChar - cCurrLine;
+				memcpy(cErrorBuffer, cCurrLine, errorPosition);
+				cErrorBuffer[errorPosition] = '\0';
+				LexAddError(iCurrentLine, "Invalid relational operators m8", cErrorBuffer);
 				m_LexState = LEXIC_STATE::START;
 			}
 			else
@@ -274,7 +304,7 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 			break;
 		//Parsing GROUPING
 		case LEXIC_STATE::PARSING_GROUPING:
-			AddToken(sTokenBuffer, TOKEN_TYPE::RELATIONAL_OP, iCurrentLine);
+			AddToken(sTokenBuffer, TOKEN_TYPE::GROUPING, iCurrentLine);
 			m_LexState = LEXIC_STATE::START;
 			break;
 		//Parsing LOGICAL
@@ -288,15 +318,18 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 			}
 			else
 			{
+				errorPosition = cCurrChar - cCurrLine;
+				memcpy(cErrorBuffer, cCurrLine, errorPosition);
+				cErrorBuffer[errorPosition] = '\0';
 				if (sTokenBuffer.back() == '&')
 				{
 					//Throw error of invalid logical AND operator
-					LexAddError(iCurrentLine, "Invalid AND operator syntax m8", cCurrLine);
+					LexAddError(iCurrentLine, "Invalid AND operator syntax m8", cErrorBuffer);
 				}
 				else if (sTokenBuffer.back() == '|')
 				{					
 					//Throw error of invalid logical OR operator
-					LexAddError(iCurrentLine, "Invalid OR operator syntax m8", cCurrLine);
+					LexAddError(iCurrentLine, "Invalid OR operator syntax m8", cErrorBuffer);
 				}
 				m_LexState = LEXIC_STATE::START;
 			}
@@ -316,7 +349,10 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 				if (isstring)
 				{
 					//We made an enter before closing the string, so that's a no no and we throw an error
-					LexAddError(iCurrentLine, "Changed lines before closing a string", cCurrLine);
+					errorPosition = cCurrChar - cCurrLine;
+					memcpy(cErrorBuffer, cCurrLine, errorPosition);
+					cErrorBuffer[errorPosition] = '\0';
+					LexAddError(iCurrentLine, "Changed lines before closing a string", cErrorBuffer);
 					cCurrChar++;
 					cCurrChar++;
 					iCurrentLine++;
@@ -364,7 +400,10 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 			else
 			{
 				//This means we have something like ;, or ,: or :; etc. That shit's wack
-				LexAddError(iCurrentLine, "you have a weird shit m8", cCurrLine);
+				errorPosition = cCurrChar - cCurrLine;
+				memcpy(cErrorBuffer, cCurrLine, errorPosition);
+				cErrorBuffer[errorPosition] = '\0';
+				LexAddError(iCurrentLine, "you have a weird shit m8", cErrorBuffer);
 			}
 			break;
 
@@ -383,12 +422,18 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 	if (isstring)
 	{
 		//We throw an error because the string was never closed
-		LexAddError(iCurrentLine, "Never closed the string", cCurrLine);
+		errorPosition = cCurrChar - cCurrLine;
+		memcpy(cErrorBuffer, cCurrLine, errorPosition);
+		cErrorBuffer[errorPosition] = '\0';
+		LexAddError(iCurrentLine, "Never closed the string", cErrorBuffer);
 	}
 	if (iscommentary)
 	{
 		//We throw an error because comment was never closed
-		LexAddError(iCurrentLine, "Never closed the comment", cCurrLine);
+		errorPosition = cCurrChar - cCurrLine;
+		memcpy(cErrorBuffer, cCurrLine, errorPosition);
+		cErrorBuffer[errorPosition] = '\0';
+		LexAddError(iCurrentLine, "Never closed the comment", cErrorBuffer);
 	}
 	return m_error->ReturnNumberErrors() == 0;
 }
