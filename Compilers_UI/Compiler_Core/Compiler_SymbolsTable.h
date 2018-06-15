@@ -1,27 +1,11 @@
 #pragma once
 #include <map>
 #include "Node.h"
-#include "Compiler_LocalNode.h"
-#include "Compiler_GlobalNode.h"
 #include <string.h>
 using namespace System;
 namespace CompilerCore
 {
-	enum class NODE_TYPE
-	{
-		UNDEFINED = 0,
-		GLOBAL_NODE,
-		LOCAL_NODE,
-		PARAMETER,
-		FUNCTION
-	};
-	enum class VAR_TYPE
-	{
-		INT = 0,
-		FLOAT,
-		CHAR,
-	};
-
+	
 	public class Compiler_SymbolsTable
 	{
 	private:

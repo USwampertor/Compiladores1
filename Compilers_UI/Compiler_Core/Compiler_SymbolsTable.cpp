@@ -5,11 +5,6 @@ using namespace CompilerCore;
 Compiler_SymbolsTable::Compiler_SymbolsTable()
 {
 	m_HashTable.clear();
-	/*UNDEFINED = 0,
-		GLOBAL_NODE,
-		LOCAL_NODE,
-		PARAMETER,
-		FUNCTION*/
 	m_NODETABLE.insert(std::make_pair(0, "UNDEFINED"));
 	m_NODETABLE.insert(std::make_pair(1, "GLOBAL_NODE"));
 	m_NODETABLE.insert(std::make_pair(2, "LOCAL_NODE"));
@@ -36,18 +31,42 @@ bool Compiler_SymbolsTable::AddSymbol(
 	{
 		//We do have either a GLOBAL or LOCAL nodes with given symbol name
 		//Now we have to check how many GLOBAL or LOCAL nodes we have with that name
+		if (SymbolExists(symbol,nodeType))
+		{
+			return false;
+		}
 		auto it = m_HashTable.find(symbol);
 		Compiler_LocalNode* pLocal = new Compiler_LocalNode();
 		//pLocal->SetNode();
 		FinalNode(it->second)->pLocalNode = pLocal;
+		return true;
 	}
-	else //if (m_HashTable.find(symbol) == m_HashTable.end())
+	else if (m_HashTable.find(symbol) == m_HashTable.end())
 	{
 		//We don't have any GLOBAL or LOCAL nodes with given symbol name
-		Compiler_GlobalNode* pGlobal = new Compiler_GlobalNode();
-		//globalVariable->SetNode();
-		m_HashTable.insert(std::make_pair(symbol, pGlobal));
+		//We have to see if this is a local or a global node
+		
+		if (nodeType != NODE_TYPE::GLOBAL_NODE)
+		{
+			//This means we have a local variable without a global before
+			//Therefore we need to create a global undefined Variable
+			Compiler_GlobalNode* pGlobal = new Compiler_GlobalNode();
+			//globalVariable->SetNode(); WITH UNDEFINED AS VARTYPE
+			m_HashTable.insert(std::make_pair(symbol, pGlobal));
+			Compiler_LocalNode* pLocal = new Compiler_LocalNode();
+			//pLocal->SetNode();
+			FinalNode(pGlobal)->pLocalNode = pLocal;
+		}
+		else
+		{
+			Compiler_LocalNode* pLocal = new Compiler_LocalNode();
+			//pLocal->SetNode();
+			m_HashTable.insert(std::make_pair(symbol, pLocal));
+		}
+		return true;
+
 	}
+	return false;
 }
 Node* Compiler_SymbolsTable::FinalNode(Node* actualNode)
 {
@@ -55,7 +74,7 @@ Node* Compiler_SymbolsTable::FinalNode(Node* actualNode)
 	//if null, we add the new node there,
 	if (actualNode->pLocalNode != nullptr)
 	{
-		FinalNode(actualNode->pLocalNode);
+		return FinalNode(actualNode->pLocalNode);
 	}
 	//else, we send this function again
 	else return actualNode;
