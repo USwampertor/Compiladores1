@@ -26,11 +26,13 @@ namespace CompilerCore
 
 		bool SymbolExists(std::string symbol);
 		bool SymbolExists(std::string symbol, NODE_TYPE type);
+		bool SymbolExists(std::string symbol, NODE_TYPE type, std::string functionName);
 		std::string GetSymbolType(std::string symbol, NODE_TYPE type);
 		void DeleteNode(std::string symbol, NODE_TYPE type, std::string functionName);
 		void Clear();
 		Node* FinalNode(Node* actualNode);
 		bool NextNode(Node* actualNode, NODE_TYPE type);
+		bool NextNode(Node* actualNode, NODE_TYPE type, std::string functionName);
 		std::string NextString(Node* actualNode, NODE_TYPE type);
 	};
 }

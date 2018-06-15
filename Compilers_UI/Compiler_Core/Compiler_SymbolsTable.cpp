@@ -10,9 +10,10 @@ Compiler_SymbolsTable::Compiler_SymbolsTable()
 	m_NODETABLE.insert(std::make_pair(2, "LOCAL_NODE"));
 	m_NODETABLE.insert(std::make_pair(3, "PARAMETER"));
 	m_NODETABLE.insert(std::make_pair(4, "FUNCTION"));
-	m_VARTABLE.insert(std::make_pair("INT",0));
-	m_VARTABLE.insert(std::make_pair("FLOAT",1));
-	m_VARTABLE.insert(std::make_pair("CHAR",2));
+	m_VARTABLE.insert(std::make_pair("UNDEFINED", 0));
+	m_VARTABLE.insert(std::make_pair("INT", 1));
+	m_VARTABLE.insert(std::make_pair("FLOAT",2));
+	m_VARTABLE.insert(std::make_pair("CHAR",3));
 }
 
 
@@ -31,13 +32,14 @@ bool Compiler_SymbolsTable::AddSymbol(
 	{
 		//We do have either a GLOBAL or LOCAL nodes with given symbol name
 		//Now we have to check how many GLOBAL or LOCAL nodes we have with that name
-		if (SymbolExists(symbol,nodeType))
+		if (SymbolExists(symbol,nodeType,functionName))
 		{
 			return false;
 		}
 		auto it = m_HashTable.find(symbol);
 		Compiler_LocalNode* pLocal = new Compiler_LocalNode();
-		//pLocal->SetNode();
+		pLocal->SetNode(
+			symbol, nodeType, dimension, varType, lineNum, functionName);
 		FinalNode(it->second)->pLocalNode = pLocal;
 		return true;
 	}
@@ -49,12 +51,14 @@ bool Compiler_SymbolsTable::AddSymbol(
 		if (nodeType != NODE_TYPE::GLOBAL_NODE)
 		{
 			//This means we have a local variable without a global before
-			//Therefore we need to create a global undefined Variable
+			//Therefore we need to create a global UNDEFINED Variable
 			Compiler_GlobalNode* pGlobal = new Compiler_GlobalNode();
-			//globalVariable->SetNode(); WITH UNDEFINED AS VARTYPE
+			pGlobal->SetNode(
+				symbol,NODE_TYPE::UNDEFINED,0,"UNDEFINED",lineNum,functionName);
 			m_HashTable.insert(std::make_pair(symbol, pGlobal));
 			Compiler_LocalNode* pLocal = new Compiler_LocalNode();
-			//pLocal->SetNode();
+			pLocal->SetNode(
+			symbol, nodeType, dimension, varType, lineNum, functionName);
 			FinalNode(pGlobal)->pLocalNode = pLocal;
 		}
 		else
@@ -96,9 +100,30 @@ bool Compiler_SymbolsTable::SymbolExists(std::string symbol, NODE_TYPE type)
 	}
 	return false;
 }
+bool Compiler_SymbolsTable::SymbolExists(std::string symbol, NODE_TYPE type, std::string functionName)
+{
+	if (m_HashTable.find(symbol) != m_HashTable.end())
+	{
+		auto it = m_HashTable.find(symbol);
+		return NextNode(it->second, type);
+	}
+	return false;
+}
 bool Compiler_SymbolsTable::NextNode(Node* actualNode, NODE_TYPE type)
 {
 	if (actualNode->m_NodeType == type)
+	{
+		return true;
+	}
+	else if (actualNode->pLocalNode == nullptr)
+	{
+		return false;
+	}
+	return NextNode(actualNode->pLocalNode, type);
+}
+bool Compiler_SymbolsTable::NextNode(Node* actualNode, NODE_TYPE type, std::string functionName)
+{
+	if (actualNode->m_NodeType == type && actualNode->m_functionParent == functionName)
 	{
 		return true;
 	}

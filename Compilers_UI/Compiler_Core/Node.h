@@ -15,7 +15,8 @@ namespace CompilerCore
 	};
 	enum class VAR_TYPE
 	{
-		INT = 0,
+		UNDEFINED = 0,
+		INT,
 		FLOAT,
 		CHAR,
 	};
@@ -24,10 +25,12 @@ namespace CompilerCore
 	{
 	public:
 		NODE_TYPE m_NodeType;
-		VAR_TYPE m_varType;
+		std::string m_varType;
 		int m_iArraySize = -1;
+		int m_lineNumber = -1;
 		std::string m_nodeName;
 		Node* pLocalNode;
+		std::string m_functionParent;
 	public:
 		Node()
 		{
@@ -50,12 +53,18 @@ namespace CompilerCore
 		{
 			*pLocalNode = nextNode;
 		}
-		virtual void SetNode() = 0;
+		virtual void 
+			SetNode(
+				std::string symbol,
+				NODE_TYPE nodeType,
+				int dimension,
+				std::string varType,
+				int lineNum,
+				std::string
+				functionName) = 0;
 	};
 	public class Compiler_LocalNode : public Node
 	{
-	private:
-		std::string context;
 	public:
 		Compiler_LocalNode()
 		{
@@ -65,9 +74,21 @@ namespace CompilerCore
 		{
 
 		}
-		void SetNode()
+		void 
+			SetNode(
+			std::string symbol, 
+			NODE_TYPE nodeType, 
+			int dimension, 
+			std::string varType, 
+			int lineNum, 
+			std::string functionName)
 		{
-			
+			m_nodeName = symbol;
+			m_NodeType = nodeType;
+			m_iArraySize = dimension;
+			m_varType = varType;
+			m_lineNumber = lineNum;
+			m_functionParent = functionName;
 		}
 	};
 	public class Compiler_GlobalNode : public Node
@@ -81,9 +102,21 @@ namespace CompilerCore
 		{
 
 		}
-		void SetNode()
+		void 
+			SetNode(
+			std::string symbol,
+			NODE_TYPE nodeType,
+			int dimension,
+			std::string varType,
+			int lineNum,
+			std::string functionName)
 		{
-
+			m_nodeName = symbol;
+			m_NodeType = nodeType;
+			m_iArraySize = dimension;
+			m_varType = varType;
+			m_lineNumber = lineNum;
+			m_functionParent = functionName;
 		}
 	};
 }
