@@ -18,7 +18,8 @@ namespace CompilerCore
 		UNDEFINED = 0,
 		INT,
 		FLOAT,
-		CHAR,
+		STRING,
+		TVOID
 	};
 
 	public class Node

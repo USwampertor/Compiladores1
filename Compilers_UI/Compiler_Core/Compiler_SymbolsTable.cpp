@@ -13,7 +13,8 @@ Compiler_SymbolsTable::Compiler_SymbolsTable()
 	m_VARTABLE.insert(std::make_pair("UNDEFINED", 0));
 	m_VARTABLE.insert(std::make_pair("INT", 1));
 	m_VARTABLE.insert(std::make_pair("FLOAT",2));
-	m_VARTABLE.insert(std::make_pair("CHAR",3));
+	m_VARTABLE.insert(std::make_pair("STRING", 3));
+	m_VARTABLE.insert(std::make_pair("TVOID", 4));
 }
 
 
@@ -55,6 +56,7 @@ bool Compiler_SymbolsTable::AddSymbol(
 			Compiler_GlobalNode* pGlobal = new Compiler_GlobalNode();
 			pGlobal->SetNode(
 				symbol,NODE_TYPE::UNDEFINED,0,"UNDEFINED",lineNum,functionName);
+			m_declaredvariables.insert(std::make_pair(m_HashTable.size(), symbol));
 			m_HashTable.insert(std::make_pair(symbol, pGlobal));
 			Compiler_LocalNode* pLocal = new Compiler_LocalNode();
 			pLocal->SetNode(
@@ -63,9 +65,11 @@ bool Compiler_SymbolsTable::AddSymbol(
 		}
 		else
 		{
-			Compiler_LocalNode* pLocal = new Compiler_LocalNode();
-			//pLocal->SetNode();
-			m_HashTable.insert(std::make_pair(symbol, pLocal));
+			Compiler_GlobalNode* pGlobal = new Compiler_GlobalNode();
+			pGlobal->SetNode(
+				symbol, nodeType, dimension, varType, lineNum, functionName);
+			m_declaredvariables.insert(std::make_pair(m_HashTable.size(), symbol));
+			m_HashTable.insert(std::make_pair(symbol, pGlobal));
 		}
 		return true;
 
@@ -160,5 +164,16 @@ void Compiler_SymbolsTable::DeleteNode(std::string symbol, NODE_TYPE type, std::
 }
 void Compiler_SymbolsTable::Clear()
 {
+	for (int i = 0; i < m_declaredvariables.size(); ++i)
+	{
+		std::string tosearch = m_declaredvariables.find(i)->second;
+		auto it = m_HashTable.find(tosearch);
+		while (it->second->pLocalNode != nullptr)
+		{
+			delete FinalNode(it->second);
+		}
+		delete it->second;
+	}
+	m_declaredvariables.clear();
 	m_HashTable.clear();
 }

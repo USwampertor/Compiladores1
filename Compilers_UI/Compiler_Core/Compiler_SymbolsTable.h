@@ -12,6 +12,7 @@ namespace CompilerCore
 		std::map<std::string, int> m_VARTABLE;
 		std::map<std::string, Node*> m_HashTable;
 		std::map<int, std::string> m_NODETABLE;
+		std::map<int, std::string> m_declaredvariables;
 	public:
 		Compiler_SymbolsTable();
 		~Compiler_SymbolsTable();

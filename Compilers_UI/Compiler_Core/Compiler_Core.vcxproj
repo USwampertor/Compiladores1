@@ -136,6 +136,7 @@
     <ClInclude Include="Compiler_ErrorModule.h" />
     <ClInclude Include="Compiler_Lexicon.h" />
     <ClInclude Include="Compiler_Sintax.h" />
+    <ClInclude Include="Compiler_SintaxisStates.h" />
     <ClInclude Include="Compiler_SymbolsTable.h" />
     <ClInclude Include="Compiler_Token.h" />
     <ClInclude Include="Node.h" />
@@ -148,6 +149,7 @@
     <ClCompile Include="Compiler_ErrorModule.cpp" />
     <ClCompile Include="Compiler_Lexicon.cpp" />
     <ClCompile Include="Compiler_Sintax.cpp" />
+    <ClCompile Include="Compiler_SintaxisStates.cpp" />
     <ClCompile Include="Compiler_SymbolsTable.cpp" />
     <ClCompile Include="Compiler_Token.cpp" />
     <ClCompile Include="Node.cpp" />

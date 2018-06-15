@@ -2,6 +2,7 @@
 #pragma once
 #include "windows.h"
 #include "Compiler_ErrorModule.h"
+#include "Compiler_SymbolsTable.h"
 #include "Compiler_Lexicon.h"
 #include "Compiler_Sintax.h"
 using namespace System;
@@ -16,9 +17,12 @@ namespace CompilerCore {
 	private:
 		//Lexicon Class
 		Compiler_Lexicon* m_LexiconModule;
+		//Syntax Class
+		Compiler_Sintax* m_SintaxModule;
+		
 		//ErrorModule Class
 		Compiler_ErrorModule^ m_ErrorModule;
-		//Sintax Class
-		Compiler_Sintax* m_SintaxModule;
+		//SymbolsTable
+		Compiler_SymbolsTable* m_SymbolsTable;
 	};
 }

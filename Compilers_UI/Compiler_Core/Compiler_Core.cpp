@@ -6,13 +6,16 @@ Manager::Manager()
 {
 	//Constructor
 	m_ErrorModule = gcnew Compiler_ErrorModule();
+	m_SymbolsTable = new Compiler_SymbolsTable();
 	m_LexiconModule = new Compiler_Lexicon(m_ErrorModule);
-	//m_SintaxModule = new Compiler_Sintax(*m_LexiconModule);
+	m_SintaxModule = new Compiler_Sintax(m_LexiconModule, m_ErrorModule, m_SymbolsTable);
 }
 Manager::~Manager()
 {
 	//Destroyer
 	delete m_LexiconModule;
+	delete m_SintaxModule;
+	delete m_SymbolsTable;
 	//lex = nullptr;
 }
 cli::array<String^>^ Manager::Compile(String^ src)
