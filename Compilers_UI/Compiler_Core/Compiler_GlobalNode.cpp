@@ -5,9 +5,12 @@ using namespace CompilerCore;
 
 Compiler_GlobalNode::Compiler_GlobalNode()
 {
+	m_NodeType = NODE_TYPE::GLOBAL_NODE;
 }
 
 
 Compiler_GlobalNode::~Compiler_GlobalNode()
 {
+	
 }
+

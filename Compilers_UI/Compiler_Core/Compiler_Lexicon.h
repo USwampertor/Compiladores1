@@ -25,22 +25,6 @@ namespace CompilerCore {
 		PARSING_GROUPING,
 		PARSING_COMMENTARY
 	};
-
-		/*
-		ID,
-		INT,
-		FLOAT,
-		STRING,
-		KEYWORD,
-		RELATIONAL_OP,
-		ARITHMETIC_OP,
-		LOGICAL_OP,
-		NEGATION_OP,
-		SEPARATOR,
-		ASIGN,
-		DIMENSIONS,
-		GROUPING
-		*/
 	public class Compiler_Lexicon
 	{
 	private:

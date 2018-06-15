@@ -137,8 +137,10 @@
     <ClInclude Include="Compiler_GlobalNode.h" />
     <ClInclude Include="Compiler_Lexicon.h" />
     <ClInclude Include="Compiler_LocalNode.h" />
+    <ClInclude Include="Compiler_Sintax.h" />
     <ClInclude Include="Compiler_SymbolsTable.h" />
     <ClInclude Include="Compiler_Token.h" />
+    <ClInclude Include="Node.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Stdafx.h" />
   </ItemGroup>
@@ -149,8 +151,10 @@
     <ClCompile Include="Compiler_GlobalNode.cpp" />
     <ClCompile Include="Compiler_Lexicon.cpp" />
     <ClCompile Include="Compiler_LocalNode.cpp" />
+    <ClCompile Include="Compiler_Sintax.cpp" />
     <ClCompile Include="Compiler_SymbolsTable.cpp" />
     <ClCompile Include="Compiler_Token.cpp" />
+    <ClCompile Include="Node.cpp" />
     <ClCompile Include="Stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

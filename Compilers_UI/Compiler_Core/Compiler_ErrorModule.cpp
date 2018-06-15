@@ -22,7 +22,7 @@ void Compiler_ErrorModule::Clear()
 void Compiler_ErrorModule::AddError(ERROR_PHASE phase, int numLine, String^ sDesc, String^ sLine)
 {
 	//We insert the error message here
-	m_Error[m_NumErrorsLex] = (sDesc + "at line " + numLine + ": " + sLine);
+	m_Error[m_NumErrorsLex] = (sDesc + "at line " + numLine + ": --->" + sLine);
 	m_NumErrorsLex++;
 }
 int Compiler_ErrorModule::ReturnNumberErrors()

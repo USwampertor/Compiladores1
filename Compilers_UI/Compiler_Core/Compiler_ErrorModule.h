@@ -1,5 +1,4 @@
 #pragma once
-
 using namespace System;
 namespace CompilerCore {
 	public enum class ERROR_PHASE
@@ -23,6 +22,4 @@ namespace CompilerCore {
 		int m_MaxErrors, m_NumErrorsLex;
 		cli::array<String^>^m_Error;
 	};
-	
-	
 }

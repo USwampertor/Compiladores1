@@ -237,6 +237,7 @@ bool Compiler_Lexicon::ParseSourceCode(const char* src)
 			}
 			else
 			{
+				//We have something like 5.66 or 52342.23423 and next a letter or some shit (5.66 a)
 				AddToken(sTokenBuffer, TOKEN_TYPE::FLOAT, iCurrentLine);
 				m_LexState = LEXIC_STATE::START;
 			}
@@ -465,34 +466,4 @@ const Compiler_Token* const Compiler_Lexicon::PeekTokenAt(int offset)
 int Compiler_Lexicon::GetNumTokens()
 {
 	return m_Tokens.size();
-}
-void SelectToken(LEXIC_STATE state, CompilerCore::TOKEN_TYPE t)
-{
-	switch (state)
-	{
-	case CompilerCore::LEXIC_STATE::PARSING_ARITHMETIC:
-		t = CompilerCore::TOKEN_TYPE::ARITHMETIC_OP;
-		break;
-	case CompilerCore::LEXIC_STATE::PARSING_CHAR:
-		t = CompilerCore::TOKEN_TYPE::ARITHMETIC_OP;
-		break;
-	case CompilerCore::LEXIC_STATE::PARSING_COMMENTARY:
-		break;
-	case CompilerCore::LEXIC_STATE::PARSING_DIMENSION:
-		break;
-	case CompilerCore::LEXIC_STATE::PARSING_FLOAT:
-		break;
-	case CompilerCore::LEXIC_STATE::PARSING_GROUPING:
-		break;
-	case CompilerCore::LEXIC_STATE::PARSING_ID:
-		break;
-	case CompilerCore::LEXIC_STATE::PARSING_INT:
-		break;
-	case CompilerCore::LEXIC_STATE::PARSING_LOGICAL:
-		break;
-	case CompilerCore::LEXIC_STATE::PARSING_RELATIONAL:
-		break;
-	case CompilerCore::LEXIC_STATE::PARSING_SEPARATOR:
-		break;
-	}
 }

@@ -1,5 +1,4 @@
 // Archivo DLL principal.
-
 #include "stdafx.h"
 #include "Compiler_Core.h"
 using namespace CompilerCore;
@@ -8,6 +7,7 @@ Manager::Manager()
 	//Constructor
 	m_ErrorModule = gcnew Compiler_ErrorModule();
 	m_LexiconModule = new Compiler_Lexicon(m_ErrorModule);
+	//m_SintaxModule = new Compiler_Sintax(*m_LexiconModule);
 }
 Manager::~Manager()
 {
@@ -23,10 +23,10 @@ cli::array<String^>^ Manager::Compile(String^ src)
 	//this is our entry to the DLL
 	//src is referring to ALL the code the user put in our inputTextBox
 	cli::array<String^>^ compilationDetails;
-	cli::array<String^>^ errorDetails = m_ErrorModule->ReturnErrorString();
 	//gcnew doesn't need a delete like new, if context dies, gcnew goes down with it
 	///First Stage: Parser/Lexicon stage
 	m_LexiconModule->ParseSourceCode((const char*)System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(src).ToPointer());
+	cli::array<String^>^ errorDetails = m_ErrorModule->ReturnErrorString();
 	compilationDetails = gcnew cli::array<String^>(m_LexiconModule->GetNumTokens() + m_ErrorModule->ReturnNumberErrors()+1);
 	for (int i = 0; i < m_ErrorModule->ReturnNumberErrors(); ++i)
 	{
