@@ -49,7 +49,7 @@ bool Compiler_SymbolsTable::AddSymbol(
 		//We don't have any GLOBAL or LOCAL nodes with given symbol name
 		//We have to see if this is a local or a global node
 		
-		if (nodeType != NODE_TYPE::GLOBAL_NODE)
+		if (nodeType != NODE_TYPE::GLOBAL_NODE && nodeType != NODE_TYPE::FUNCTION)
 		{
 			//This means we have a local variable without a global before
 			//Therefore we need to create a global UNDEFINED Variable
