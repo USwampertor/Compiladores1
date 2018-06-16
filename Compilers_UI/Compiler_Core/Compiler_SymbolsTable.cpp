@@ -89,11 +89,7 @@ Node* Compiler_SymbolsTable::FinalNode(Node* actualNode)
 }
 bool Compiler_SymbolsTable::SymbolExists(std::string symbol)
 {
-	if (m_HashTable.find(symbol)!=m_HashTable.end())
-	{
-		return true;
-	}
-	return false;
+	return m_HashTable.find(symbol)!=m_HashTable.end();
 }
 bool Compiler_SymbolsTable::SymbolExists(std::string symbol, NODE_TYPE type)
 {
@@ -104,7 +100,8 @@ bool Compiler_SymbolsTable::SymbolExists(std::string symbol, NODE_TYPE type)
 	}
 	return false;
 }
-bool Compiler_SymbolsTable::SymbolExists(std::string symbol, NODE_TYPE type, std::string functionName)
+bool Compiler_SymbolsTable::SymbolExists(
+	std::string symbol, NODE_TYPE type, std::string functionName)
 {
 	if (m_HashTable.find(symbol) != m_HashTable.end())
 	{
@@ -137,7 +134,7 @@ bool Compiler_SymbolsTable::NextNode(Node* actualNode, NODE_TYPE type, std::stri
 	}
 	return NextNode(actualNode->pLocalNode, type);
 }
-std::string Compiler_SymbolsTable::GetSymbolType(std::string symbol, NODE_TYPE type)
+std::string Compiler_SymbolsTable::GetNodeType(std::string symbol, NODE_TYPE type)
 {
 	if (m_HashTable.find(symbol) != m_HashTable.end())
 	{
@@ -145,6 +142,27 @@ std::string Compiler_SymbolsTable::GetSymbolType(std::string symbol, NODE_TYPE t
 		return NextString(it->second, type);
 	}
 	return "NONEXISTINGNODE";
+}
+std::string Compiler_SymbolsTable::GetSymbolType(std::string symbol, NODE_TYPE type, std::string functionName)
+{
+	if (m_HashTable.find(symbol) != m_HashTable.end())
+	{
+		auto it = m_HashTable.find(symbol);
+		return NextString(it->second, type);
+	}
+	return "NONEXISTINGNODE";
+}
+std::string Compiler_SymbolsTable::NextString(Node* actualNode, NODE_TYPE type, std::string functionName)
+{
+	if (actualNode->m_NodeType == type && actualNode->m_functionParent == functionName)
+	{
+		return actualNode->m_varType;
+	}
+	else if (actualNode->pLocalNode == nullptr)
+	{
+		return "NONEXISTINGNODE";
+	}
+	return NextString(actualNode->pLocalNode, type, functionName);
 }
 std::string Compiler_SymbolsTable::NextString(Node* actualNode, NODE_TYPE type)
 {
@@ -158,6 +176,7 @@ std::string Compiler_SymbolsTable::NextString(Node* actualNode, NODE_TYPE type)
 	}
 	return NextString(actualNode->pLocalNode, type);
 }
+
 void Compiler_SymbolsTable::DeleteNode(std::string symbol, NODE_TYPE type, std::string functionName)
 {
 
