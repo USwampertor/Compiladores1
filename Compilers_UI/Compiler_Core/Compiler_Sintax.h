@@ -20,7 +20,6 @@ public class Compiler_Sintax
 		Compiler_SymbolsTable* table);
 	~Compiler_Sintax();
 	void SintaxStateMachine();
-	void DumpErrors();
 	void Clear();
 
 };

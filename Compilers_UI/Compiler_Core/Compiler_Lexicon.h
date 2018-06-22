@@ -33,16 +33,21 @@ namespace CompilerCore {
 		std::map<std::string,std::string> m_KeyWordMap;
 		int tokeniterator;
 	public:
-		void Clear();
 		Compiler_Lexicon(Compiler_ErrorModule^ errormodule);
-		const Compiler_Token* const GetNextToken();
-		const Compiler_Token* const PeekTokenAt(int offset);
+		~Compiler_Lexicon();
+		int GetNumTokens();
+		int GetTokenIterator();
+		bool ParseSourceCode(const char* src);
+		void Clear();
+		void ClearToken();
+		void ResetTokenCounter();
+		void SetTokenIterator(int at);
 		void AddToken(std::string lex, TOKEN_TYPE type, int line);
 		void LexAddError(int line_num, char* desc, const char* line);
-		int GetNumTokens();
-		void ClearToken();
-		~Compiler_Lexicon();
-		bool ParseSourceCode(const char* src);
+		const Compiler_Token* const GetNextToken();
+		const Compiler_Token* const PeekTokenAt(int offset);
+		const Compiler_Token* const GetActualToken();
+		const Compiler_Token* const PeekNextToken();
 		LEXIC_STATE m_LexState;
 	};
 

@@ -32,6 +32,7 @@ namespace CompilerCore{
 		Compiler_Token(std::string lex, TOKEN_TYPE type, int line);
 		const std::string GetLex() const;
 		const std::string GetType() const;
+		const int GetLine() const;
 		~Compiler_Token();
 	};
 

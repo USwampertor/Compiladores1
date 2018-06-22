@@ -35,3 +35,7 @@ const std::string Compiler_Token::GetType() const
 {
 	return m_TokenMap.find((int)m_TokenType)->second;
 }
+const int Compiler_Token::GetLine() const
+{
+	return m_LineNumber;
+}

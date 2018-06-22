@@ -18,8 +18,9 @@ Compiler_Sintax::~Compiler_Sintax()
 
 void Compiler_Sintax::SintaxStateMachine()
 {
-	Compiler_SintaxStates statemodule(m_lexicMachine,m_error,m_symbolsTable);
-	statemodule.Run();
+	Compiler_SintaxStates statemodule;
+	m_lexicMachine->SetTokenIterator(0);
+	statemodule.Run(m_lexicMachine, m_error, m_symbolsTable);
 }
 void Compiler_Sintax::Clear()
 {

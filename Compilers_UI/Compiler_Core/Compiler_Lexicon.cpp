@@ -467,3 +467,23 @@ int Compiler_Lexicon::GetNumTokens()
 {
 	return m_Tokens.size();
 }
+void Compiler_Lexicon::ResetTokenCounter()
+{
+	tokeniterator = -1;
+}
+int Compiler_Lexicon::GetTokenIterator()
+{
+	return tokeniterator;
+}
+void Compiler_Lexicon::SetTokenIterator(int at)
+{
+	tokeniterator = at;
+}
+const Compiler_Token* const  Compiler_Lexicon::GetActualToken()
+{
+	return m_Tokens[tokeniterator];
+}
+const Compiler_Token* const Compiler_Lexicon::PeekNextToken()
+{
+	return m_Tokens[tokeniterator+1];
+}
