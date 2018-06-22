@@ -12,7 +12,17 @@ Compiler_Sintax::Compiler_Sintax(
 	m_symbolsTable = table;
 }
 
-
 Compiler_Sintax::~Compiler_Sintax()
 {
+}
+
+void Compiler_Sintax::SintaxStateMachine()
+{
+	Compiler_SintaxStates statemodule(m_lexicMachine,m_error,m_symbolsTable);
+	statemodule.Run();
+}
+void Compiler_Sintax::Clear()
+{
+	
+	m_symbolsTable->Clear();
 }
