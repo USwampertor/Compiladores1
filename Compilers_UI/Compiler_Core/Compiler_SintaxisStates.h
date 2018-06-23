@@ -71,7 +71,7 @@ namespace CompilerCore
 				}
 				m_blobVector.clear();
 			}
-			void AddSintaxError(Compiler_ErrorModule^ errorm ,Compiler_Token* cToken, char* desc)
+			void AddSintaxError(Compiler_ErrorModule^ errorm ,const Compiler_Token* cToken, char* desc)
 			{
 				String^ strDesc = gcnew String(desc);
 				String^ strLine = gcnew String(cToken->GetLex().c_str());
@@ -135,12 +135,20 @@ namespace CompilerCore
 									if (lexicMachine->PeekNextToken()->GetLex() != "]")
 									{
 										//The [0] never closed, we need to send an error
+										AddSintaxError(
+											errorModule, 
+											lexicMachine->GetNextToken(),
+											"Array is never closed");
 									}
-									lexicMachine->GetNextToken();
+									
 								}
 								else
 								{
 									//SEND ERROR THAT WE FOUND SOME [E] or some negative
+									AddSintaxError(
+										errorModule,
+										lexicMachine->GetNextToken(),
+										"Array value is invalid");
 									while (lexicMachine->GetActualToken()->GetLex()!=";")
 									{
 										lexicMachine->GetNextToken();
@@ -151,6 +159,10 @@ namespace CompilerCore
 						else
 						{
 							//most probably we found a var ,
+							AddSintaxError(
+								errorModule,
+								lexicMachine->GetNextToken(),
+								"Invalid argument");
 							while (lexicMachine->GetActualToken()->GetLex() != ";")
 							{
 								lexicMachine->GetNextToken();
@@ -161,6 +173,10 @@ namespace CompilerCore
 					if (lexicMachine->GetActualToken()->GetType() == "SEPARATOR" && i == 0)
 					{
 						//We send error because we have a var , or var : or var int etc
+						AddSintaxError(
+							errorModule,
+							lexicMachine->GetNextToken(),
+							"variable never declared");
 						while (lexicMachine->GetNextToken()->GetLex() != ";")
 						{
 							lexicMachine->GetNextToken()->GetType();
@@ -183,7 +199,7 @@ namespace CompilerCore
 				Compiler_SymbolsTable* table)
 			{
 				//return Process(lexicMachine, errorModule, table);
-				if ()
+				if (true)
 				{
 
 				}
