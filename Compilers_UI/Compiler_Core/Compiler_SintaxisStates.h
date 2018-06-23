@@ -77,6 +77,10 @@ namespace CompilerCore
 				String^ strLine = gcnew String(cToken->GetLex().c_str());
 				errorm->AddError(ERROR_PHASE::LEXICO, cToken->GetLine(), strDesc, strLine);
 			}
+			void CheckStack(std::unique_ptr<SintaxState> s)
+			{
+				//This function Checks the stat
+			}
 		};
 		class SintaxState_Start : public SintaxState
 		{
@@ -121,9 +125,9 @@ namespace CompilerCore
 						lexicMachine->GetActualToken()->GetLex() != ":"||
 						lexicMachine->GetActualToken()->GetLex() != ";")
 					{
-						if (lexicMachine->PeekNextToken()->GetType() == "ID")
+						if (lexicMachine->GetActualToken()->GetType() == "ID")
 						{
-							AddBlob(lexicMachine->GetNextToken()); ++i;
+							AddBlob(lexicMachine->GetActualToken()); ++i;
 							if (lexicMachine->PeekNextToken()->GetLex() == "[")
 							{
 								lexicMachine->GetNextToken();
@@ -186,6 +190,7 @@ namespace CompilerCore
 					{
 						//At least we have som var a: int; and therefore we can dump our shit from here
 						AddtoTable(table);
+						return std::unique_ptr<SintaxState_Start>();
 					}
 				
 				return Process(lexicMachine, errorModule, table);
@@ -199,13 +204,23 @@ namespace CompilerCore
 				Compiler_SymbolsTable* table)
 			{
 				//return Process(lexicMachine, errorModule, table);
-				if (true)
+				if (lexicMachine->GetActualToken()->GetType()=="ID")
 				{
-
+					AddBlob(lexicMachine->GetActualToken());
+					if (lexicMachine->PeekNextToken()->GetLex() == "(")
+					{
+						lexicMachine->GetNextToken();
+						return std::unique_ptr<SintaxState>();
+					}
 				}
 				else
 				{
-					//We send an error cause some manco motherfucker just did a bamboozle
+					//We send an error cause some bitch ass motherfucker just did a 
+					//bamboozle here and put some shit like "function 3 ()"
+					AddSintaxError(
+						errorModule,
+						lexicMachine->GetNextToken(),
+						"variable never declared");
 				}
 				return nullptr;
 			}
@@ -217,6 +232,36 @@ namespace CompilerCore
 				Compiler_ErrorModule^ errorModule,
 				Compiler_SymbolsTable* table)
 			{
+					if (lexicMachine->GetActualToken()->GetType() == "ID")
+					{
+						AddBlob(lexicMachine->GetActualToken());
+					}
+					else if (lexicMachine->GetActualToken()->GetLex() == ")")
+					{
+						//State is finished, therefore we expect a block or a ;
+						if (lexicMachine->PeekNextToken()->GetLex() == "{")
+						{
+							//Return BLOCK STATE WHICH IS NOT YET IMPLEMENTED
+
+						}
+						else if (lexicMachine->PeekNextToken()->GetLex() == ";")
+						{
+							//That means that we have a function a (...); and we finish
+							
+						}
+						else
+						{
+							AddtoTable(table);
+						}
+					}
+					else
+					{
+						// We found some dumb shit inside, dont know what we could find
+						AddSintaxError(
+							errorModule,
+							lexicMachine->GetNextToken(),
+							"the fuck u doin m8");
+					}
 				return Process(lexicMachine,errorModule,table);
 			}
 		};
