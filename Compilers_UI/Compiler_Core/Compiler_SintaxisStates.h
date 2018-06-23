@@ -41,12 +41,26 @@ namespace CompilerCore
 				blob.symbol = token->GetLex();
 				blob.varType = token->GetType();
 				blob.lineNum = token->GetLine();
+				blob.dimension = 0;
+				blob.functionName = "";
 				m_blobVector.push_back(blob);
 			}
-			void AddtoTable(Compiler_SymbolsTable* st, NODE_TYPE nodeType)
+			void AddtoTable(Compiler_SymbolsTable* st)
 			{
+
+				
 				for (int i = 0; i< m_blobVector.size(); ++i)
 				{
+					NODE_TYPE nodeType = NODE_TYPE::UNDEFINED;
+					if (m_blobVector[i].functionName == "")
+					{
+						nodeType = NODE_TYPE::GLOBAL_NODE;
+					}
+					else
+					{
+						//if(this == std::unique_ptr<SintaxState_Block>)nodeType = NODE_TYPE::LOCAL_NODE;
+						/*else*/ nodeType = NODE_TYPE::PARAMETER;
+					}
 					st->AddSymbol(
 						m_blobVector[i].symbol, 
 						nodeType,
@@ -55,6 +69,13 @@ namespace CompilerCore
 						m_blobVector[i].lineNum,
 						m_blobVector[i].functionName);
 				}
+				m_blobVector.clear();
+			}
+			void AddSintaxError(Compiler_ErrorModule^ errorm ,Compiler_Token* cToken, char* desc)
+			{
+				String^ strDesc = gcnew String(desc);
+				String^ strLine = gcnew String(cToken->GetLex().c_str());
+				errorm->AddError(ERROR_PHASE::LEXICO, cToken->GetLine(), strDesc, strLine);
 			}
 		};
 		class SintaxState_Start : public SintaxState
@@ -94,23 +115,63 @@ namespace CompilerCore
 				Compiler_ErrorModule^ errorModule,
 				Compiler_SymbolsTable* table)
 			{
-				if (lexicMachine->PeekNextToken()->GetType()=="ID")
-				{
-					AddBlob(lexicMachine->GetNextToken());
-					if (lexicMachine->PeekNextToken()->GetType() == "RELATIONAL OPERATOR" &&
-						lexicMachine->PeekNextToken()->GetLex() == "[")
+				int i = 0;
+				
+					while (
+						lexicMachine->GetActualToken()->GetLex() != ":"||
+						lexicMachine->GetActualToken()->GetLex() != ";")
 					{
-						lexicMachine->GetNextToken();
-						if (lexicMachine->PeekNextToken()->GetType() == "INT")
+						if (lexicMachine->PeekNextToken()->GetType() == "ID")
 						{
-							m_blobVector.back().dimension = atoi(lexicMachine->PeekNextToken()->GetLex().c_str());
+							AddBlob(lexicMachine->GetNextToken()); ++i;
+							if (lexicMachine->PeekNextToken()->GetLex() == "[")
+							{
+								lexicMachine->GetNextToken();
+								if (lexicMachine->PeekNextToken()->GetType() == "INT"&&
+									atoi(lexicMachine->PeekNextToken()->GetLex().c_str()) > -1)
+								{
+									m_blobVector.back().dimension =
+										atoi(lexicMachine->GetNextToken()->GetLex().c_str());
+									if (lexicMachine->PeekNextToken()->GetLex() != "]")
+									{
+										//The [0] never closed, we need to send an error
+									}
+									lexicMachine->GetNextToken();
+								}
+								else
+								{
+									//SEND ERROR THAT WE FOUND SOME [E] or some negative
+									while (lexicMachine->GetActualToken()->GetLex()!=";")
+									{
+										lexicMachine->GetNextToken();
+									}
+								}
+							}
 						}
 						else
 						{
-
+							//most probably we found a var ,
+							while (lexicMachine->GetActualToken()->GetLex() != ";")
+							{
+								lexicMachine->GetNextToken();
+							}
+						}
+						
+					} 
+					if (lexicMachine->GetActualToken()->GetType() == "SEPARATOR" && i == 0)
+					{
+						//We send error because we have a var , or var : or var int etc
+						while (lexicMachine->GetNextToken()->GetLex() != ";")
+						{
+							lexicMachine->GetNextToken()->GetType();
 						}
 					}
-				}
+					else
+					{
+						//At least we have som var a: int; and therefore we can dump our shit from here
+						AddtoTable(table);
+					}
+				
 				return Process(lexicMachine, errorModule, table);
 			}
 		};
@@ -121,7 +182,16 @@ namespace CompilerCore
 				Compiler_ErrorModule^ errorModule,
 				Compiler_SymbolsTable* table)
 			{
-				return Process(lexicMachine, errorModule, table);
+				//return Process(lexicMachine, errorModule, table);
+				if ()
+				{
+
+				}
+				else
+				{
+					//We send an error cause some manco motherfucker just did a bamboozle
+				}
+				return nullptr;
 			}
 		};
 		static class SintaxState_Parameter : public SintaxState
@@ -136,9 +206,6 @@ namespace CompilerCore
 		};
 		//Member declaration for SintaxStates
 	private:
-		Compiler_Lexicon * m_lexicMachine;
-		Compiler_SymbolsTable* m_symbolsTable;
-		msclr::gcroot<Compiler_ErrorModule^> m_error;
 	public:
 		Compiler_SintaxStates()
 		{
