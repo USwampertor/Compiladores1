@@ -23,6 +23,7 @@ cli::array<String^>^ Manager::Compile(String^ src)
 	//First we clear everything from our buffers, we don't want to get all the shit scrambled up from past compilings
 	m_ErrorModule->Clear();
 	m_LexiconModule->Clear();
+	m_SintaxModule->Clear();
 	//this is our entry to the DLL
 	//src is referring to ALL the code the user put in our inputTextBox
 	cli::array<String^>^ compilationDetails;
@@ -44,6 +45,8 @@ cli::array<String^>^ Manager::Compile(String^ src)
 		compilationDetails[i] = gcnew String(a.c_str());
 		//"token_name token_type"
 	}
+	m_SintaxModule->SintaxStateMachine();
+	if(m_SymbolsTable->SymbolExists("alfa")) compilationDetails[m_ErrorModule->ReturnNumberErrors()] = "( u w u)";
 	///Second Stage: Syntactic stage
 	//
 	///Third Stage: Semantic stage

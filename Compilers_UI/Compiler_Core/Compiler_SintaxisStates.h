@@ -49,7 +49,7 @@ namespace CompilerCore
 			{
 
 				
-				for (int i = 0; i< m_blobVector.size(); ++i)
+				for (int i = 0; i < m_blobVector.size(); ++i)
 				{
 					NODE_TYPE nodeType = NODE_TYPE::UNDEFINED;
 					if (m_blobVector[i].functionName == "")
@@ -92,7 +92,8 @@ namespace CompilerCore
 				if (lexicMachine->PeekTokenAt(lexicMachine->GetTokenIterator())->GetLex() == "var")
 				{
 					lexicMachine->GetNextToken();
-					return std::unique_ptr<SintaxState_Var>();
+					std::unique_ptr<SintaxState> tmp;// (new SintaxState_Var);
+					return tmp;
 				}
 				else if(lexicMachine->PeekTokenAt(lexicMachine->GetTokenIterator())->GetLex() == "function")
 				{
@@ -266,7 +267,6 @@ namespace CompilerCore
 			}
 		};
 		//Member declaration for SintaxStates
-	private:
 	public:
 		Compiler_SintaxStates()
 		{
@@ -287,7 +287,7 @@ namespace CompilerCore
 			} while (m_state != nullptr);
 		}
 		
-		static std::unique_ptr<SintaxState> m_state;
+		std::unique_ptr<SintaxState> m_state;
 		
 		void Empty()
 		{

@@ -33,8 +33,11 @@ namespace Compilers_UI
             int j = 0;
             for(j = 0; j < compDetails.Length;++j)
             {
-                if (compDetails[j] == "( ° w °)")
+                if (compDetails[j] == "( ° w °)"|| compDetails[j] == "( u w u)")
+                {
+                    errorTextBox.Text += (compDetails[j] + '\r' + '\n');
                     break;
+                }
                 errorTextBox.Text += (compDetails[j] + '\r' + '\n');
             }
             for(int i = j+1; i<compDetails.Length;++i)
