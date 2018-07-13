@@ -30,7 +30,7 @@ namespace CompilerCore
 		int m_iArraySize = -1;
 		int m_lineNumber = -1;
 		std::string m_nodeName;
-		Node* pLocalNode;
+		Node* pLocalNode = nullptr;
 		std::string m_functionParent;
 	public:
 		Node()

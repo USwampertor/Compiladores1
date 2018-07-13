@@ -24,6 +24,5 @@ void Compiler_Sintax::SintaxStateMachine()
 }
 void Compiler_Sintax::Clear()
 {
-	
 	m_symbolsTable->Clear();
 }
