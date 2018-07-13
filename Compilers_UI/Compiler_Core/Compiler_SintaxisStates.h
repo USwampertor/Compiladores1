@@ -109,7 +109,7 @@ namespace CompilerCore
 				Compiler_ErrorModule^ errorModule,
 				Compiler_SymbolsTable* table) = 0;
 			virtual void RunInside() = 0;
-			void AddBlob(const Compiler_Token* token)
+			void AddBlob(const Compiler_Token* token = 0, std::string func = 0)
 			{
 				SintaxBlob blob;
 				blob.symbol = token->GetLex();
@@ -328,6 +328,19 @@ namespace CompilerCore
 			void RunInside()
 			{
 				//Here we are going to get all parameters needed for this function
+				
+			}
+			bool Run(Compiler_Lexicon* lexicMachine,
+				Compiler_ErrorModule^ errorModule,
+				Compiler_SymbolsTable* table)
+			{
+				SintaxState* p = new SintaxState_Parameter("parameter");
+				p = p->Process(lexicMachine, errorModule, table);
+				if (p != nullptr)
+				{
+					return true;
+				}
+				return false;
 			}
 			SintaxState*  Process(
 				Compiler_Lexicon* lexicMachine,
@@ -338,13 +351,39 @@ namespace CompilerCore
 				if (lexicMachine->GetActualToken()->GetType()=="ID")
 				{
 					AddBlob(lexicMachine->GetActualToken());
+					m_funcname = lexicMachine->GetActualToken()->GetLex();
+
 					if (lexicMachine->PeekNextToken()->GetLex() == "(")
 					{
 						lexicMachine->GetNextToken();
-						this->instack = true;
-						m_sintaxstack.push(this);
-						return new SintaxState_Parameter();
-						//RunInside();
+						if (!Run(lexicMachine, errorModule, table))
+						{
+							AddSintaxError(
+								errorModule,
+								lexicMachine->GetNextToken(),
+								"parameter not set correctly");
+						}
+						else
+						{
+							AddtoTable(table);
+							lexicMachine->GetNextToken();
+							if (lexicMachine->GetActualToken()->GetLex() == ";")
+							{
+								//they never closed with a ;
+							}
+							else if (lexicMachine->GetActualToken()->GetLex() == "{")
+							{
+								return new SintaxState_Block();
+							}
+							else
+							{
+									AddSintaxError(
+									errorModule,
+									lexicMachine->GetActualToken(),
+									"; missing at end of line");
+							}
+							return new SintaxState_Start();
+						}
 					}
 				}
 				else
@@ -358,6 +397,7 @@ namespace CompilerCore
 				}
 				return nullptr;
 			}
+			std::string m_funcname;
 		};
 		class SintaxState_Block : public SintaxState 
 		{
@@ -372,6 +412,7 @@ namespace CompilerCore
 			{
 				if (lexicMachine->PeekTokenAt(lexicMachine->GetTokenIterator())->GetLex() == "if")
 				{
+
 					lexicMachine->GetNextToken();
 					return new SintaxState_If();
 				}
@@ -398,6 +439,7 @@ namespace CompilerCore
 		};
 		class SintaxState_Parameter : public SintaxState
 		{
+		
 			void RunInside()
 			{
 
@@ -407,40 +449,108 @@ namespace CompilerCore
 				Compiler_ErrorModule^ errorModule,
 				Compiler_SymbolsTable* table)
 			{
+				int i = 0;
+				lexicMachine->GetNextToken();
+				while (lexicMachine->GetActualToken()->GetLex() != ")")
+				{
 					if (lexicMachine->GetActualToken()->GetType() == "ID")
 					{
-						AddBlob(lexicMachine->GetActualToken());
-					}
-					else if (lexicMachine->GetActualToken()->GetLex() == ")")
-					{
-						//State is finished, therefore we expect a block or a ;
-						if (lexicMachine->PeekNextToken()->GetLex() == "{")
+						AddBlob(lexicMachine->GetActualToken(), m_funcname);
+						AddBlob(lexicMachine->GetActualToken()); ++i;
+						//lexicMachine->GetNextToken();
+						if (lexicMachine->PeekNextToken()->GetLex() == "[")
 						{
-							//Return BLOCK STATE WHICH IS NOT YET IMPLEMENTED
-							//m_sintaxstack.push(this);
-							return new SintaxState_Block();
+							lexicMachine->GetNextToken();
+							if (lexicMachine->PeekNextToken()->GetType() == "INT"&&
+								atoi(lexicMachine->PeekNextToken()->GetLex().c_str()) > -1)
+							{
+								m_blobVector.back().dimension =
+									atoi(lexicMachine->GetNextToken()->GetLex().c_str());
+								if (lexicMachine->PeekNextToken()->GetLex() != "]")
+								{
+									//The [0] never closed, we need to send an error
+									AddSintaxError(
+										errorModule,
+										lexicMachine->GetNextToken(),
+										"Array is never closed");
+								}
+
+							}
+							else
+							{
+								//SEND ERROR THAT WE FOUND SOME [E] or some negative
+								AddSintaxError(
+									errorModule,
+									lexicMachine->GetNextToken(),
+									"Array value is invalid");
+								while (lexicMachine->GetActualToken()->GetLex() != ";")
+								{
+									lexicMachine->GetNextToken();
+								}
+							}
 						}
-						else if (lexicMachine->PeekNextToken()->GetLex() == ";")
+						else if (
+							lexicMachine->PeekNextToken()->GetLex() == ",")
 						{
-							//That means that we have a function a (...); and we finish
-							return new SintaxState_Start();
+							lexicMachine->GetNextToken();
+						}
+						else if (lexicMachine->PeekNextToken()->GetLex() == ":")
+						{
+							lexicMachine->GetNextToken();
+
+						}
+					}
+					else if (lexicMachine->GetActualToken()->GetLex() != ":")
+					{
+						lexicMachine->GetNextToken();
+						if (
+							lexicMachine->GetActualToken()->GetLex() == "int"	||
+							lexicMachine->GetActualToken()->GetLex() == "float" ||
+							lexicMachine->GetActualToken()->GetLex() == "string" )
+						{
+							AddtoTable(table);
+							lexicMachine->GetNextToken();
+							if (
+								lexicMachine->GetActualToken()->GetLex() == ","&&
+								lexicMachine->PeekNextToken()->GetLex() == ")")
+							{
+								AddSintaxError(
+									errorModule,
+									lexicMachine->GetActualToken(),
+									"SEPARATOR before GROUPING");
+							}
+							lexicMachine->GetNextToken();
 						}
 						else
 						{
-							AddtoTable(table);
-							return new SintaxState_Start();
+							AddSintaxError(
+								errorModule,
+								lexicMachine->GetActualToken(),
+								"Didn't set var type in parameter");
 						}
 					}
-					else
-					{
-						// We found some dumb shit inside, don't know what we could find
-						AddSintaxError(
-							errorModule,
-							lexicMachine->GetNextToken(),
-							"the fuck u doing m8");
-					}
+				}
+				
+				if (lexicMachine->GetActualToken()->GetLex() == ")")
+				{
+					//Either the function foo () or function (a,b: int);
+					return new SintaxState_Function();
+				}
+				else
+				{
+					// We found some dumb shit inside, don't know what we could find
+					AddSintaxError(
+						errorModule,
+						lexicMachine->GetNextToken(),
+						"the fuck u doing m8");
+					return nullptr;
+				}
 				return Process(lexicMachine,errorModule,table);
 			}
+		public:
+			std::string m_funcname;
+			SintaxState_Parameter() = default;
+			SintaxState_Parameter(std::string funcname) { m_funcname = funcname; }
 		};
 		class SintaxState_If : public SintaxState
 		{
@@ -554,7 +664,7 @@ namespace CompilerCore
 		}
 		
 		SintaxState* m_state;
-		static std::stack<SintaxState*> m_sintaxstack;
+		std::stack<SintaxState*> m_sintaxstack;
 		void Empty()
 		{
 			
