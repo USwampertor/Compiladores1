@@ -58,9 +58,9 @@ namespace CompilerCore
 					tokensin.push_back(tokenVector[i]);
 				}
 				else if (
-					tokenVector[i]->GetType() == "id" ||
-					tokenVector[i]->GetType() == "int" ||
-					tokenVector[i]->GetType() == "float")
+					tokenVector[i]->GetType() == "ID" ||
+					tokenVector[i]->GetType() == "INT" ||
+					tokenVector[i]->GetType() == "FLOAT")
 				{
 					operandsin++;
 					tokensin.push_back(tokenVector[i]);
@@ -129,6 +129,7 @@ namespace CompilerCore
 		class SintaxState
 		{
 		public:
+			PolacStruct m_reverseStack;
 			std::string m_funcname = "";
 			std::vector<SintaxBlob> m_blobVector;
 			std::stack<Compiler_Token*> m_tokenstack;
@@ -412,6 +413,7 @@ namespace CompilerCore
 							}
 							else if (lexicMachine->GetActualToken()->GetLex() == "{")
 							{
+								lexicMachine->GetNextToken();
 								return new SintaxState_Block();
 							}
 							else
@@ -447,7 +449,7 @@ namespace CompilerCore
 				Compiler_ErrorModule^ errorModule,
 				Compiler_SymbolsTable* table,int runcase)
 			{
-				switch (runcase)
+				/*switch (runcase)
 				{
 				case 0:
 					break;
@@ -485,7 +487,7 @@ namespace CompilerCore
 					break;
 				default:
 					break;
-				}
+				}*/
 				
 				return false;
 			}
@@ -516,7 +518,7 @@ namespace CompilerCore
 					lexicMachine->PeekTokenAt(lexicMachine->GetTokenIterator())->GetType() == "FLOAT" ||
 					lexicMachine->PeekTokenAt(lexicMachine->GetTokenIterator())->GetType() == "ID")
 				{
-					lexicMachine->GetNextToken();
+					const Compiler_Token* a = lexicMachine->GetActualToken();
 					return  new SintaxState_LogicExp();
 				}
 				else
@@ -651,6 +653,7 @@ namespace CompilerCore
 			SintaxState_Parameter() = default;
 			SintaxState_Parameter(std::string funcname) { m_funcname = funcname; }
 		};
+		///Haven't been implemented correctly
 		class SintaxState_If : public SintaxState
 		{
 			void RunInside()
@@ -728,6 +731,7 @@ namespace CompilerCore
 				return Process(lexicMachine, errorModule, table);
 			}
 		};
+		///
 		class SintaxState_LogicExp : public SintaxState
 		{
 			int separatorCounter = 0;
@@ -745,8 +749,7 @@ namespace CompilerCore
 			{
 				whereat = lexicMachine->GetTokenIterator();
 				
-				while (lexicMachine->GetActualToken()->GetLex() != ";"&&
-					separatorCounter != 0)
+				do
 				{
 					if (lexicMachine->GetActualToken()->GetLex() == "(")
 					{
@@ -758,17 +761,21 @@ namespace CompilerCore
 						lexicMachine->GetActualToken()->GetType() == "FLOAT" ||
 						lexicMachine->GetActualToken()->GetType() == "ID")
 					{
-						//m_tokenstack.push(lexicMachine->GetActualToken());
 						lexicMachine->GetNextToken();
-						if (lexicMachine->GetActualToken()->GetType() == "OPERATOR")
+						const Compiler_Token* a = lexicMachine->GetActualToken();
+						if (lexicMachine->GetActualToken()->GetType() == "ARITHMETIC OPERATOR")
 						{
 							lexicMachine->GetNextToken();
 						}
-						if (lexicMachine->GetActualToken()->GetLex() == ")"&&
+						else if (lexicMachine->GetActualToken()->GetLex() == ")"&&
 							separatorCounter > 0)
 						{
 							lexicMachine->GetNextToken();
 							--separatorCounter;
+						}
+						else if (lexicMachine->GetActualToken()->GetLex() == ";")
+						{
+							break;
 						}
 						else if (lexicMachine->GetActualToken()->GetLex() != "(")
 						{
@@ -778,6 +785,11 @@ namespace CompilerCore
 								"Invalid object inside expression");
 								lexicMachine->GetNextToken();
 						}
+						
+					}
+					else if (lexicMachine->GetActualToken()->GetLex() == ";")
+					{
+						break;
 					}
 					else if (
 						lexicMachine->GetActualToken()->GetLex() == ")"&& 
@@ -794,23 +806,26 @@ namespace CompilerCore
 						AddSintaxError(
 							errorModule,
 							lexicMachine->GetActualToken(),
-							"Invalid objetc in expression");
+							"Invalid object in expression");
 						lexicMachine->GetNextToken();
 					}
-
 					
-				}
+					
+				} while (separatorCounter == 0);
 				if (lexicMachine->GetActualToken()->GetLex() == ";")
 				{
+					
 					//It seems that we had everything correctly and now we can make the 
 					//flush of data to the reverse notation
 					whereends = lexicMachine->GetTokenIterator() - 1;
-					for (int i = whereat; i < lexicMachine->GetNumTokens&&i <= whereends; ++i)
+					for (int j = this->whereat; j < lexicMachine->GetNumTokens() && j <= this->whereends; ++j)
 					{
-						exptokens.push_back(lexicMachine->PeekTokenAt(i));
+						exptokens.push_back(lexicMachine->PeekTokenAt(j));
 					}
-
+					m_reverseStack.AddExpression(errorModule, exptokens);
+					return new SintaxState_Start();
 				}
+				return Process(lexicMachine, errorModule, table);
 			}
 		};
 		//Member declaration for SintaxStates
