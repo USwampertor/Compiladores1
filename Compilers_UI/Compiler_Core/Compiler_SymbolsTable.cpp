@@ -39,6 +39,7 @@ bool Compiler_SymbolsTable::AddSymbol(
 		}
 		auto it = m_HashTable.find(symbol);
 		Compiler_LocalNode* pLocal = new Compiler_LocalNode();
+		pLocal->pLocalNode = nullptr;
 		pLocal->SetNode(
 			symbol, nodeType, dimension, varType, lineNum, functionName);
 		FinalNode(it->second)->pLocalNode = pLocal;
@@ -59,6 +60,7 @@ bool Compiler_SymbolsTable::AddSymbol(
 			m_declaredvariables.insert(std::make_pair(m_HashTable.size(), symbol));
 			m_HashTable.insert(std::make_pair(symbol, pGlobal));
 			Compiler_LocalNode* pLocal = new Compiler_LocalNode();
+			pLocal->pLocalNode = nullptr;
 			pLocal->SetNode(
 			symbol, nodeType, dimension, varType, lineNum, functionName);
 			FinalNode(pGlobal)->pLocalNode = pLocal;

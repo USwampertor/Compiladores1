@@ -35,11 +35,11 @@ namespace CompilerCore
 	public:
 		Node()
 		{
-
+			pLocalNode = nullptr;
 		}
 		~Node()
 		{
-
+			delete pLocalNode;
 		}
 		std::string GetName()
 		{

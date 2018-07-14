@@ -20,6 +20,8 @@ namespace CompilerCore
 		PolacStruct() :operatorsin(0), operandsin(0) {};
 
 		int operatorsin = 0, operandsin = 0;
+		int separators = 0;
+		int tokenit = 0;
 		std::vector<const Compiler_Token*> tokensin, outputTokens;
 		std::stack<std::vector<const Compiler_Token*>> tokensout;
 		/*Cuando vayas a empezar a procesar las expresiones logicas, lo que tienes que 
@@ -31,16 +33,24 @@ namespace CompilerCore
 		void AddExpression(Compiler_ErrorModule^ errorm, std::vector<const Compiler_Token*> operationVector)
 		{
 			operandsin = 0; operatorsin = 0;
-			int tokenit = 0;
-			if (!ReverseNotation(operationVector,tokenit))
+			if (!ReverseNotation(operationVector,tokenit,errorm))
 			{
-				//errorm->AddError(ERROR_PHASE::SINTACTICO)
+				String^ strDesc = gcnew String("Invalid order in expression");
+				String^ strLine = gcnew String(operationVector[tokenit]->GetLex().c_str());
+				errorm->AddError(ERROR_PHASE::LEXICO, operationVector[tokenit]->GetLine(), strDesc, strLine);
 			}
 		}
-		bool ReverseNotation(std::vector<const Compiler_Token*> tokenVector, int tokenat)
+		std::stack<std::vector<const Compiler_Token*>> GetTokensOut()
+		{
+			return tokensout;
+		}
+		bool ReverseNotation(
+			std::vector<const Compiler_Token*> tokenVector, 
+			int tokenat,
+			Compiler_ErrorModule^ errorm)
 		{
 			tokensin.clear();
-			for (int i = 0; i < tokenVector.size(); ++i)
+			for (int i = tokenat; i < tokenVector.size(); ++i)
 			{
 				if (tokenVector[i]->GetType()== "ARITHMETIC OPERATOR")
 				{
@@ -48,14 +58,39 @@ namespace CompilerCore
 					tokensin.push_back(tokenVector[i]);
 				}
 				else if (
-					tokenVector[i]->GetType() == "ID" ||
-					tokenVector[i]->GetType() == "INT" ||
-					tokenVector[i]->GetType() == "FLOAT")
+					tokenVector[i]->GetType() == "id" ||
+					tokenVector[i]->GetType() == "int" ||
+					tokenVector[i]->GetType() == "float")
 				{
 					operandsin++;
 					tokensin.push_back(tokenVector[i]);
 				}
-
+				else if (tokenVector[i]->GetLex() == "(")
+				{
+					PolacStruct s;
+					s.operandsin = operandsin;
+					s.operatorsin = operatorsin;
+					s.tokenit = tokenat;
+					if (s.ReverseNotation(tokenVector,s.tokenit,errorm))
+					{
+						i = s.tokenit;
+						operandsin = s.operandsin;
+						operatorsin = s.operatorsin;
+						std::stack<std::vector<const Compiler_Token*>> t = s.GetTokensOut();
+						while (!t.empty())
+						{
+							tokensout.push(t.top());
+							t.pop();
+						}
+					}
+				}
+				else if (
+					tokenVector[i]->GetLex() == ")"&&
+					separators > 1)
+				{
+					tokenit = i;
+					return true;
+				}
 				if (2 == operandsin && 1 == operatorsin)
 				{
 					outputTokens.clear();
@@ -94,6 +129,7 @@ namespace CompilerCore
 		class SintaxState
 		{
 		public:
+			std::string m_funcname = "";
 			std::vector<SintaxBlob> m_blobVector;
 			std::stack<Compiler_Token*> m_tokenstack;
 			const int m_tokenCounter = 0;
@@ -116,7 +152,7 @@ namespace CompilerCore
 				blob.varType = token->GetType();
 				blob.lineNum = token->GetLine();
 				blob.dimension = 0;
-				blob.functionName = "";
+				blob.functionName = func;
 				m_blobVector.push_back(blob);
 			}
 			void AddtoTable(Compiler_SymbolsTable* st)
@@ -214,7 +250,7 @@ namespace CompilerCore
 					{
 						if (lexicMachine->GetActualToken()->GetType() == "ID")
 						{
-							AddBlob(lexicMachine->GetActualToken()); ++i;
+							AddBlob(lexicMachine->GetActualToken(),m_funcname); ++i;
 							//lexicMachine->GetNextToken();
 							if (lexicMachine->PeekNextToken()->GetLex() == "[")
 							{
@@ -322,6 +358,9 @@ namespace CompilerCore
 				
 				return Process(lexicMachine, errorModule, table);
 			}
+			public:
+			SintaxState_Var() = default;
+			SintaxState_Var(std::string func) { m_funcname = func; };
 		};
 		class SintaxState_Function : public SintaxState
 		{
@@ -350,7 +389,7 @@ namespace CompilerCore
 				//return Process(lexicMachine, errorModule, table);
 				if (lexicMachine->GetActualToken()->GetType()=="ID")
 				{
-					AddBlob(lexicMachine->GetActualToken());
+					AddBlob(lexicMachine->GetActualToken(),m_funcname);
 					m_funcname = lexicMachine->GetActualToken()->GetLex();
 
 					if (lexicMachine->PeekNextToken()->GetLex() == "(")
@@ -397,7 +436,6 @@ namespace CompilerCore
 				}
 				return nullptr;
 			}
-			std::string m_funcname;
 		};
 		class SintaxState_Block : public SintaxState 
 		{
@@ -453,10 +491,10 @@ namespace CompilerCore
 				lexicMachine->GetNextToken();
 				while (lexicMachine->GetActualToken()->GetLex() != ")")
 				{
+					const Compiler_Token* a = lexicMachine->GetActualToken();
 					if (lexicMachine->GetActualToken()->GetType() == "ID")
 					{
-						AddBlob(lexicMachine->GetActualToken(), m_funcname);
-						AddBlob(lexicMachine->GetActualToken()); ++i;
+						AddBlob(lexicMachine->GetActualToken(), m_funcname); ++i;
 						//lexicMachine->GetNextToken();
 						if (lexicMachine->PeekNextToken()->GetLex() == "[")
 						{
@@ -493,41 +531,50 @@ namespace CompilerCore
 							lexicMachine->PeekNextToken()->GetLex() == ",")
 						{
 							lexicMachine->GetNextToken();
+							lexicMachine->GetNextToken();
+
 						}
 						else if (lexicMachine->PeekNextToken()->GetLex() == ":")
 						{
 							lexicMachine->GetNextToken();
-
-						}
-					}
-					else if (lexicMachine->GetActualToken()->GetLex() != ":")
-					{
-						lexicMachine->GetNextToken();
-						if (
-							lexicMachine->GetActualToken()->GetLex() == "int"	||
-							lexicMachine->GetActualToken()->GetLex() == "float" ||
-							lexicMachine->GetActualToken()->GetLex() == "string" )
-						{
-							AddtoTable(table);
 							lexicMachine->GetNextToken();
+
+							//
 							if (
-								lexicMachine->GetActualToken()->GetLex() == ","&&
-								lexicMachine->PeekNextToken()->GetLex() == ")")
+								lexicMachine->GetActualToken()->GetLex() == "int" ||
+								lexicMachine->GetActualToken()->GetLex() == "float" ||
+								lexicMachine->GetActualToken()->GetLex() == "string")
 							{
+								AddtoTable(table);
+								lexicMachine->GetNextToken();
+								if (
+									lexicMachine->GetActualToken()->GetLex() == ";"&&
+									lexicMachine->PeekNextToken()->GetLex() == ")")
+								{
+									AddSintaxError(
+										errorModule,
+										lexicMachine->GetActualToken(),
+										"SEPARATOR before GROUPING");
+								}
+								
+							}
+							else
+							{
+								
 								AddSintaxError(
 									errorModule,
 									lexicMachine->GetActualToken(),
-									"SEPARATOR before GROUPING");
+									"Didn't set var type in parameter");
 							}
-							lexicMachine->GetNextToken();
+							
 						}
-						else
-						{
-							AddSintaxError(
-								errorModule,
-								lexicMachine->GetActualToken(),
-								"Didn't set var type in parameter");
-						}
+					}
+					else// if (lexicMachine->GetActualToken()->GetLex() == ":")
+					{
+						AddSintaxError(
+							errorModule,
+							lexicMachine->GetActualToken(),
+							"Invalid variable inside parameters");
 					}
 				}
 				
@@ -541,20 +588,26 @@ namespace CompilerCore
 					// We found some dumb shit inside, don't know what we could find
 					AddSintaxError(
 						errorModule,
-						lexicMachine->GetNextToken(),
+						lexicMachine->GetActualToken(),
 						"the fuck u doing m8");
 					return nullptr;
 				}
 				return Process(lexicMachine,errorModule,table);
 			}
 		public:
-			std::string m_funcname;
 			SintaxState_Parameter() = default;
 			SintaxState_Parameter(std::string funcname) { m_funcname = funcname; }
 		};
 		class SintaxState_If : public SintaxState
 		{
 			void RunInside()
+			{
+
+			}
+			void RunInside(
+				Compiler_Lexicon* lexicMachine,
+				Compiler_ErrorModule^ errorModule,
+				Compiler_SymbolsTable* table)
 			{
 
 			}
@@ -608,6 +661,10 @@ namespace CompilerCore
 		};
 		class SintaxState_LogicExp : public SintaxState
 		{
+			int separatorCounter = 0;
+			int whereat = 0;
+			int whereends = 0;
+			std::vector<const Compiler_Token*> exptokens;
 			void RunInside()
 			{
 
@@ -617,15 +674,15 @@ namespace CompilerCore
 				Compiler_ErrorModule^ errorModule,
 				Compiler_SymbolsTable* table)
 			{
-				if (lexicMachine->GetActualToken()->GetLex() == "(" ||
-					lexicMachine->GetActualToken()->GetType() == "INT" ||
-					lexicMachine->GetActualToken()->GetType() == "FLOAT" ||
-					lexicMachine->GetActualToken()->GetType() == "ID")
+				whereat = lexicMachine->GetTokenIterator();
+				
+				while (lexicMachine->GetActualToken()->GetLex() != ";"&&
+					separatorCounter != 0)
 				{
 					if (lexicMachine->GetActualToken()->GetLex() == "(")
 					{
 						lexicMachine->GetNextToken();
-						return Process(lexicMachine, errorModule, table);
+						++separatorCounter;
 					}
 					else if (
 						lexicMachine->GetActualToken()->GetType() == "INT" ||
@@ -634,12 +691,57 @@ namespace CompilerCore
 					{
 						//m_tokenstack.push(lexicMachine->GetActualToken());
 						lexicMachine->GetNextToken();
+						if (lexicMachine->GetActualToken()->GetType() == "OPERATOR")
+						{
+							lexicMachine->GetNextToken();
+						}
+						if (lexicMachine->GetActualToken()->GetLex() == ")"&&
+							separatorCounter > 0)
+						{
+							lexicMachine->GetNextToken();
+							--separatorCounter;
+						}
+						else if (lexicMachine->GetActualToken()->GetLex() != "(")
+						{
+							AddSintaxError(
+								errorModule,
+								lexicMachine->GetActualToken(),
+								"Invalid object inside expression");
+								lexicMachine->GetNextToken();
+						}
 					}
-				}
-				else if (lexicMachine->GetActualToken()->GetType() == "OPERATOR")
-				{
-				}
+					else if (
+						lexicMachine->GetActualToken()->GetLex() == ")"&& 
+						separatorCounter <= 0)
+					{
+						AddSintaxError(
+							errorModule,
+							lexicMachine->GetActualToken(),
+							"Using ) while theres no ( before");
+						lexicMachine->GetNextToken();
+					}
+					else
+					{
+						AddSintaxError(
+							errorModule,
+							lexicMachine->GetActualToken(),
+							"Invalid objetc in expression");
+						lexicMachine->GetNextToken();
+					}
 
+					
+				}
+				if (lexicMachine->GetActualToken()->GetLex() == ";")
+				{
+					//It seems that we had everything correctly and now we can make the 
+					//flush of data to the reverse notation
+					whereends = lexicMachine->GetTokenIterator() - 1;
+					for (int i = whereat; i < lexicMachine->GetNumTokens&&i <= whereends; ++i)
+					{
+						exptokens.push_back(lexicMachine->PeekTokenAt(i));
+					}
+
+				}
 			}
 		};
 		//Member declaration for SintaxStates
@@ -650,7 +752,7 @@ namespace CompilerCore
 		}
 		~Compiler_SintaxStates()
 		{
-			m_state->Release();
+			//m_state->Release();
 		}
 		void Run(
 			Compiler_Lexicon* lexicMachine,
