@@ -443,6 +443,52 @@ namespace CompilerCore
 			{
 
 			}
+			bool Run(Compiler_Lexicon* lexicMachine,
+				Compiler_ErrorModule^ errorModule,
+				Compiler_SymbolsTable* table,int runcase)
+			{
+				switch (runcase)
+				{
+				case 0:
+					break;
+				case 1:
+					SintaxState * p = new SintaxState_If();
+					p = p->Process(lexicMachine, errorModule, table);
+					if (p != nullptr)
+					{
+						return true;
+					}
+					break;
+				case 2:
+					SintaxState * p = new SintaxState_For();
+					p = p->Process(lexicMachine, errorModule, table);
+					if (p != nullptr)
+					{
+						return true;
+					}
+					break;
+				case 3:
+					SintaxState * p = new SintaxState_While();
+					p = p->Process(lexicMachine, errorModule, table);
+					if (p != nullptr)
+					{
+						return true;
+					}
+					break;
+				case 4:
+					SintaxState * p = new SintaxState_LogicExp();
+					p = p->Process(lexicMachine, errorModule, table);
+					if (p != nullptr)
+					{
+						return true;
+					}
+					break;
+				default:
+					break;
+				}
+				
+				return false;
+			}
 			SintaxState* Process(
 				Compiler_Lexicon* lexicMachine,
 				Compiler_ErrorModule^ errorModule,
@@ -473,6 +519,13 @@ namespace CompilerCore
 					lexicMachine->GetNextToken();
 					return  new SintaxState_LogicExp();
 				}
+				else
+				{
+					AddSintaxError(
+						errorModule,
+						lexicMachine->PeekTokenAt(lexicMachine->GetTokenIterator()),
+						"Invalid character in block");
+				}
 			}
 		};
 		class SintaxState_Parameter : public SintaxState
@@ -491,7 +544,7 @@ namespace CompilerCore
 				lexicMachine->GetNextToken();
 				while (lexicMachine->GetActualToken()->GetLex() != ")")
 				{
-					const Compiler_Token* a = lexicMachine->GetActualToken();
+					
 					if (lexicMachine->GetActualToken()->GetType() == "ID")
 					{
 						AddBlob(lexicMachine->GetActualToken(), m_funcname); ++i;
@@ -604,12 +657,26 @@ namespace CompilerCore
 			{
 
 			}
+			bool Run(
+				Compiler_Lexicon* lexicMachine,
+				Compiler_ErrorModule^ errorModule,
+				Compiler_SymbolsTable* table)
+			{
+				SintaxState * p = new SintaxState_LogicExp();
+				p = p->Process(lexicMachine, errorModule, table);
+				if (p != nullptr)
+				{
+					return true;
+				}
+			}
+				
 			void RunInside(
 				Compiler_Lexicon* lexicMachine,
 				Compiler_ErrorModule^ errorModule,
 				Compiler_SymbolsTable* table)
 			{
-
+				lexicMachine->GetNextToken();
+				
 			}
 			SintaxState* Process(
 				Compiler_Lexicon* lexicMachine,
@@ -621,8 +688,10 @@ namespace CompilerCore
 					lexicMachine->GetActualToken()->GetType() == "FLOAT" ||
 					lexicMachine->GetActualToken()->GetType() == "ID")
 				{
-					lexicMachine->GetNextToken();
-					return new SintaxState_LogicExp();
+					if (Run(lexicMachine, errorModule, table))
+					{
+						return new SintaxState_Start();
+					}
 				}
 				if (lexicMachine->GetActualToken()->GetLex() == ")")
 				{
