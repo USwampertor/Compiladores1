@@ -8,7 +8,8 @@ Manager::Manager()
 	m_ErrorModule = gcnew Compiler_ErrorModule();
 	m_SymbolsTable = new Compiler_SymbolsTable();
 	m_LexiconModule = new Compiler_Lexicon(m_ErrorModule);
-	m_SintaxModule = new Compiler_Sintax(m_LexiconModule, m_ErrorModule, m_SymbolsTable);
+	m_SemanticModule = new Compiler_Semantic(m_ErrorModule,m_SymbolsTable);
+	m_SintaxModule = new Compiler_Sintax(m_LexiconModule, m_ErrorModule, m_SymbolsTable, m_SemanticModule);
 }
 Manager::~Manager()
 {

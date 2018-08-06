@@ -5,11 +5,13 @@ using namespace CompilerCore;
 Compiler_Sintax::Compiler_Sintax(
 	Compiler_Lexicon* lexicMachine, 
 	Compiler_ErrorModule^ errorModule, 
-	Compiler_SymbolsTable* table)
+	Compiler_SymbolsTable* table,
+	Compiler_Semantic* semantic)
 {
 	m_error = errorModule;
 	m_lexicMachine = lexicMachine;
 	m_symbolsTable = table;
+	m_semanticMachine = semantic;
 }
 
 Compiler_Sintax::~Compiler_Sintax()

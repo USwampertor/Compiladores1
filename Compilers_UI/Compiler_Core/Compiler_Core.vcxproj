@@ -136,6 +136,7 @@
     <ClInclude Include="Compiler_ErrorModule.h" />
     <ClInclude Include="Compiler_ExpTree.h" />
     <ClInclude Include="Compiler_Lexicon.h" />
+    <ClInclude Include="Compiler_LogExp.h" />
     <ClInclude Include="Compiler_Semantic.h" />
     <ClInclude Include="Compiler_Sintax.h" />
     <ClInclude Include="Compiler_SintaxisStates.h" />
@@ -152,6 +153,7 @@
     <ClCompile Include="Compiler_ErrorModule.cpp" />
     <ClCompile Include="Compiler_ExpTree.cpp" />
     <ClCompile Include="Compiler_Lexicon.cpp" />
+    <ClCompile Include="Compiler_LogExp.cpp" />
     <ClCompile Include="Compiler_Semantic.cpp" />
     <ClCompile Include="Compiler_Sintax.cpp" />
     <ClCompile Include="Compiler_SintaxisStates.cpp" />

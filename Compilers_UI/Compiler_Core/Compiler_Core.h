@@ -19,7 +19,10 @@ namespace CompilerCore {
 		Compiler_Lexicon* m_LexiconModule;
 		//Syntax Class
 		Compiler_Sintax* m_SintaxModule;
-		
+		//Semantic Class
+		Compiler_Semantic* m_SemanticModule;
+
+
 		//ErrorModule Class
 		Compiler_ErrorModule^ m_ErrorModule;
 		//SymbolsTable
