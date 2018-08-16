@@ -8,6 +8,7 @@ namespace CompilerCore
 	public:
 		//vector de tokens del mapa en el constructor
 		Compiler_ExpTree();
+		Compiler_ExpTree(Compiler_TreeNode* r);
 		~Compiler_ExpTree();
 		bool Evalute();
 	private:

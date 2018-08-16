@@ -17,126 +17,7 @@ namespace CompilerCore
 	};
 	
 	//Struct to create the polish notation
-	public struct PolishStruct
-	{
-		PolishStruct() :operatorsin(0), operandsin(0) {};
-
-		int operatorsin = 0, operandsin = 0;
-		int separators = 0;
-		int tokenit = 0;
-		std::vector<const Compiler_Token*> tokensin, outputTokens;
-		std::stack<std::vector<const Compiler_Token*>> tokensout;
-		std::vector<const Compiler_Token*> original_vector;
-		/*Add expression need to process two by one systems. Two operands by one operator
-		While this rule doesn't apply, the system is faulty and wrote incorrectly*/
-
-		void AddExpression(Compiler_ErrorModule^ errorm, std::vector<const Compiler_Token*> operationVector)
-		{
-			operandsin = 0; operatorsin = 0;
-			if (!ReverseNotation(operationVector,tokenit,errorm))
-			{
-				String^ strDesc = gcnew String("Invalid order in expression");
-				String^ strLine = gcnew String(operationVector[tokenit]->GetLex().c_str());
-				errorm->AddError(ERROR_PHASE::LEXICO, operationVector[tokenit]->GetLine(), strDesc, strLine);
-			}
-			original_vector = operationVector;
-		}
-		std::stack<std::vector<const Compiler_Token*>> GetTokensOut()
-		{
-			return tokensout;
-		}
-		bool ReverseNotation(
-			std::vector<const Compiler_Token*> tokenVector, 
-			int tokenat,
-			Compiler_ErrorModule^ errorm)
-		{
-			tokensin.clear();
-			for (int i = tokenat; i < tokenVector.size(); ++i)
-			{
-				if (tokenVector[i]->GetType()== "ARITHMETIC OPERATOR")
-				{
-					operatorsin++;
-					tokensin.push_back(tokenVector[i]);
-				}
-				else if (
-					tokenVector[i]->GetType() == "ID" ||
-					tokenVector[i]->GetType() == "INT" ||
-					tokenVector[i]->GetType() == "FLOAT")
-				{
-					operandsin++;
-					tokensin.push_back(tokenVector[i]);
-				}
-				else if (tokenVector[i]->GetLex() == "(")
-				{
-					PolishStruct s;
-					s.operandsin = operandsin;
-					s.operatorsin = operatorsin;
-					s.tokenit = tokenat;
-					if (s.ReverseNotation(tokenVector,s.tokenit,errorm))
-					{
-						i = s.tokenit;
-						operandsin = s.operandsin;
-						operatorsin = s.operatorsin;
-						std::stack<std::vector<const Compiler_Token*>> t = s.GetTokensOut();
-						while (!t.empty())
-						{
-							tokensout.push(t.top());
-							t.pop();
-						}
-					}
-				}
-				else if (
-					tokenVector[i]->GetLex() == ")"&&
-					separators > 1)
-				{
-					tokenit = i;
-					return true;
-				}
-				if (2 == operandsin && 1 == operatorsin)
-				{
-					outputTokens.clear();
-					for (int j = 0; j < tokensin.size(); ++j)
-					{
-						if (
-							tokensin[j]->GetType() == "ID" ||
-							tokensin[j]->GetType() == "INT" ||
-							tokensin[j]->GetType() == "FLOAT")
-						{
-							outputTokens.push_back(tokensin[j]);
-						}
-					}
-					for (int j = 0; j < tokensin.size(); ++j)
-					{
-						if (tokensin[j]->GetType() == "ARITHMETIC OPERATOR")
-						{
-							outputTokens.push_back(tokensin[j]);
-						}
-					}
-					tokensout.push(outputTokens);
-					operatorsin--; operandsin--;
-				}
-				else if ((2 > operandsin && 2 <= operatorsin))
-				{
-					tokenat = i;
-					return false; 
-				}
-			}
-			return true;
-		}
-		void ClearPolish()
-		{
-			operatorsin = 0;
-			operandsin = 0;
-			separators = 0;
-			tokenit = 0;
-			tokensin.clear();
-			outputTokens.clear();
-			while (!tokensout.empty())
-			{
-				tokensout.pop();
-			}
-		}
-	};
+	
 	
 	//Cluster class
 	public class Compiler_SintaxStates
@@ -253,7 +134,7 @@ namespace CompilerCore
 				else if (lexicMachine->PeekTokenAt(lexicMachine->GetTokenIterator())->GetLex() == "main")
 				{
 					lexicMachine->GetNextToken();
-					return new SintaxState_Block();
+					return new SintaxState_Block("main");
 				}
 				else
 				{
@@ -507,7 +388,8 @@ namespace CompilerCore
 								if (lexicMachine->GetActualToken()->GetLex() == "{")
 								{
 									lexicMachine->GetNextToken();
-									return new SintaxState_Block();
+									SintaxState* p = new SintaxState_Block(m_funcname);
+									p->Process(lexicMachine, errorModule, table, polish);
 								}
 								}
 							}
@@ -548,11 +430,6 @@ namespace CompilerCore
 				Compiler_SymbolsTable* table,
 				int runcase)
 			{
-				//if
-
-				//while
-
-				//func_call
 				
 				return false;
 			}
@@ -573,13 +450,15 @@ namespace CompilerCore
 					}
 					else if (lexicMachine->GetActualToken()->GetLex() == "for")
 					{
-						lexicMachine->GetNextToken();
-						return new SintaxState_For();
+						//lexicMachine->GetNextToken();
+						//SintaxState* st = new SintaxState_For();
+						//st->Process(lexicMachine, errorModule, table, polish);
 					}
 					else if (lexicMachine->GetActualToken()->GetLex() == "while")
 					{
-						lexicMachine->GetNextToken();
-						return new SintaxState_While();
+						lexicMachine->GetNextToken(); 
+						SintaxState* st = new SintaxState_While();
+						st->Process(lexicMachine, errorModule, table, polish);
 					}
 					else if (
 						lexicMachine->GetActualToken()->GetType() == "INT" ||
@@ -587,8 +466,9 @@ namespace CompilerCore
 						lexicMachine->GetActualToken()->GetType() == "ID")
 					{
 
-						const Compiler_Token* a = lexicMachine->GetActualToken();
-						return  new SintaxState_LogicExp();
+						//lexicMachine->GetActualToken();
+						SintaxState* st = new SintaxState_LogicExp(m_funcname);
+						st->Process(lexicMachine, errorModule, table, polish);
 					}
 					else
 					{
@@ -598,8 +478,11 @@ namespace CompilerCore
 							"Invalid character in block");
 					}
 				}
-				
+				return nullptr;
 			}
+		public:
+			SintaxState_Block() = default;
+			SintaxState_Block(std::string funcname) { m_funcname = funcname; };
 		};
 		
 		///////////////////////////////////////////////////////////////////////////////
@@ -745,7 +628,7 @@ namespace CompilerCore
 				Compiler_SymbolsTable* table,
 				std::vector<PolishStruct> polish)
 			{
-				SintaxState * p = new SintaxState_LogicExp();
+				SintaxState * p = new SintaxState_LogicExp(m_funcname);
 				p = p->Process(lexicMachine, errorModule, table, polish);
 				if (p != nullptr)
 				{
@@ -774,15 +657,21 @@ namespace CompilerCore
 				{
 					if (Run(lexicMachine, errorModule, table, polish))
 					{
-						return new SintaxState_Start();
+						if (lexicMachine->GetActualToken()->GetLex() == ")")
+						{
+							lexicMachine->GetNextToken();
+							SintaxState* st = new SintaxState_Block();
+							st->Process(lexicMachine, errorModule, table, polish);
+						}
 					}
 				}
-				if (lexicMachine->GetActualToken()->GetLex() == ")")
-				{
-					return new SintaxState_Start();
-				}
-				return Process(lexicMachine, errorModule, table, polish);
+				
+				
+					return nullptr;
 			}
+		public:
+			SintaxState_If() = default;
+			SintaxState_If(std::string funcname) { m_funcname = funcname; };
 		};
 
 		///////////////////////////////////////////////////////////////////////////////
@@ -799,8 +688,31 @@ namespace CompilerCore
 				Compiler_SymbolsTable* table,
 				std::vector<PolishStruct> polish)
 			{
-				return Process(lexicMachine, errorModule, table, polish);
+				if (lexicMachine->GetActualToken()->GetLex() == "(")
+				{
+					lexicMachine->GetNextToken();
+					SintaxState* st = new SintaxState_LogicExp(m_funcname);
+					st->Process(lexicMachine, errorModule, table, polish);
+					if (lexicMachine->GetActualToken()->GetLex() == "{")
+					{
+						lexicMachine->GetNextToken();
+						SintaxState* st = new SintaxState_Block(m_funcname);
+						st->Process(lexicMachine, errorModule, table, polish);
+					}
+				}
+				else
+				{
+					AddSintaxError(
+						errorModule,
+						lexicMachine->GetActualToken(),
+						"parameters never set");
+					return nullptr;
+				}
+				return nullptr;
 			}
+		public:
+			SintaxState_While() = default;
+			SintaxState_While(std::string funcname) { m_funcname = funcname; };
 		};
 
 		///////////////////////////////////////////////////////////////////////////////
@@ -887,13 +799,10 @@ namespace CompilerCore
 					}
 					else if (
 						lexicMachine->GetActualToken()->GetLex() == ")"&& 
-						separatorCounter <= 0)
+						separatorCounter == 0)
 					{
-						AddSintaxError(
-							errorModule,
-							lexicMachine->GetActualToken(),
-							"Using ) while theres no ( before");
-						lexicMachine->GetNextToken();
+						break;
+						//lexicMachine->GetNextToken();
 					}
 					else
 					{
@@ -917,15 +826,21 @@ namespace CompilerCore
 						exptokens.push_back(lexicMachine->PeekTokenAt(j));
 					}
 					//This adds the polish struct into the vector of expressions
-					m_reverseStack.AddExpression(errorModule, exptokens);
-					polish.push_back(m_reverseStack);
+					if (m_reverseStack.AddExpression(errorModule, exptokens))
+					{
+						m_reverseStack.m_functionProperty = m_funcname;
+						polish.push_back(m_reverseStack);
+					}
 					//Now that we have the info of the expression, we clear the struct so
 					//We can keep using it for the next expression
 					m_reverseStack.ClearPolish();
 					return nullptr;
 				}
-				return Process(lexicMachine, errorModule, table, polish);
+				return nullptr;
 			}
+			public:
+			SintaxState_LogicExp() = default;
+			SintaxState_LogicExp(std::string funcname) { m_funcname = funcname; };
 		};
 
 

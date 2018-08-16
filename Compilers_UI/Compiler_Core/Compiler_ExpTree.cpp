@@ -5,8 +5,10 @@ using namespace CompilerCore;
 Compiler_ExpTree::Compiler_ExpTree()
 {
 }
-
-
 Compiler_ExpTree::~Compiler_ExpTree()
 {
+}
+Compiler_ExpTree::Compiler_ExpTree(Compiler_TreeNode* r)
+{
+	root = r;
 }
