@@ -37,7 +37,7 @@ bool Compiler_TreeNode::Evaluate()
 	}
 	else if (lnode->m_nodeType == rnode->m_nodeType)
 	{
-		m_nodeType = lnode->m_nodeType;
+		//m_nodeType = lnode->m_nodeType;
 		return true;
 	}
 	else if(

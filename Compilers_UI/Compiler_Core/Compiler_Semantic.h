@@ -1,4 +1,5 @@
 #pragma once
+#include "vcclr.h"
 #include "Compiler_Token.h"
 #include "Compiler_ErrorModule.h"
 #include "Compiler_SymbolsTable.h"
@@ -31,6 +32,7 @@ namespace CompilerCore
 		void AddSemanticError(Compiler_ErrorModule^ errorm, const Compiler_Token* cToken, char* desc);
 	private:
 		Compiler_SymbolsTable* m_symbolsTable;
+		msclr::gcroot<Compiler_ErrorModule^> m_errorModule;
 		//msclr::gcroot<Compiler_ErrorModule^> 
 		//std::multimap<std::string, std::vector<Compiler_Token*>> m_expMap;
 		std::vector<Compiler_LogExp*> m_expVector;

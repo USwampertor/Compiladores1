@@ -4,7 +4,8 @@ using namespace CompilerCore;
 
 Compiler_Semantic::Compiler_Semantic(Compiler_ErrorModule^ cterror, Compiler_SymbolsTable* cTable)
 {
-	//m_error = cterror;
+	m_errorModule = cterror;
+	m_symbolsTable = cTable;
 }
 
 Compiler_Semantic::Compiler_Semantic()
@@ -22,10 +23,14 @@ void Compiler_Semantic::InFixToPostFix(std::vector<const Compiler_Token*> inf, s
 void Compiler_Semantic::CreateExpressionTrees()
 {
 	PolishStruct comparator;
+	std::stack<Compiler_TreeNode*> tree;
 	for (int i = 0; i < m_notProcessedExpressions.size(); ++i)
 	{
 		//std::stack<const Compiler_Token*> tempStack;
-		std::stack<Compiler_TreeNode*> tree;
+		while (!tree.empty())
+		{
+			tree.pop();
+		}
 		for(int j = 0; j < m_notProcessedExpressions[i]->m_postfixExp.size(); ++j)
 		{
 			if (comparator.Operand(m_notProcessedExpressions[i]->m_postfixExp[j]))
@@ -46,7 +51,12 @@ void Compiler_Semantic::CreateExpressionTrees()
 				}
 				else
 				{
-					//AddSemanticError(m_errorModule)
+					AddSemanticError(m_errorModule, m_notProcessedExpressions[i]->m_postfixExp[j], "Invalid Logic in expression");
+					while (!tree.empty())
+					{
+						tree.pop();
+					}
+					break;
 				}
 			}
 			
