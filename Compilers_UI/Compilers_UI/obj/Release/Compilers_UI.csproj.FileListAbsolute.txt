@@ -1,0 +1,11 @@
+C:\Users\PROPIETARIO\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\bin\Release\Compilers_UI.exe.config
+C:\Users\PROPIETARIO\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\bin\Release\Compilers_UI.exe
+C:\Users\PROPIETARIO\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\bin\Release\Compilers_UI.pdb
+C:\Users\PROPIETARIO\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\bin\Release\Compiler_Core.dll
+C:\Users\PROPIETARIO\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\bin\Release\Compiler_Core.pdb
+C:\Users\PROPIETARIO\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\obj\Release\Compilers_UI.csprojResolveAssemblyReference.cache
+C:\Users\PROPIETARIO\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\obj\Release\Compilers_UI.Form1.resources
+C:\Users\PROPIETARIO\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\obj\Release\Compilers_UI.Properties.Resources.resources
+C:\Users\PROPIETARIO\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\obj\Release\Compilers_UI.csproj.GenerateResource.Cache
+C:\Users\PROPIETARIO\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\obj\Release\Compilers_UI.exe
+C:\Users\PROPIETARIO\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\obj\Release\Compilers_UI.pdb

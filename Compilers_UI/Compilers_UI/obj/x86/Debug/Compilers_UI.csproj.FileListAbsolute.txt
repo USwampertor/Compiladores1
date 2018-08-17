@@ -1,0 +1,13 @@
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\obj\x86\Debug\Compilers_UI.csprojAssemblyReference.cache
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\obj\x86\Debug\Compilers_UI.Form1.resources
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\obj\x86\Debug\Compilers_UI.Properties.Resources.resources
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\obj\x86\Debug\Compilers_UI.csproj.GenerateResource.cache
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\obj\x86\Debug\Compilers_UI.csproj.CoreCompileInputs.cache
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\bin\x86\Debug\Compilers_UI.exe.config
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\bin\x86\Debug\Compilers_UI.exe
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\bin\x86\Debug\Compilers_UI.pdb
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\bin\x86\Debug\Compiler_Core.dll
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\bin\x86\Debug\Compiler_Core.pdb
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\obj\x86\Debug\Compilers_UI.csproj.CopyComplete
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\obj\x86\Debug\Compilers_UI.exe
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\obj\x86\Debug\Compilers_UI.pdb

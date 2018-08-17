@@ -12,19 +12,19 @@ Compiler_TreeNode::~Compiler_TreeNode()
 }
 Compiler_TreeNode::Compiler_TreeNode(std::string type)
 {
-	if (type == "string")
+	if (type == "string"|| type == "STRING")
 	{
 		m_nodeType = NODE_RESULT::RESULT_STRING;
 	}
-	if (type == "bool")
+	if (type == "bool" || type == "BOOL")
 	{
 		m_nodeType = NODE_RESULT::RESULT_BOOL;
 	}
-	if (type == "int")
+	if (type == "int" || type == "INT")
 	{
 		m_nodeType = NODE_RESULT::RESULT_INT;
 	}
-	if (type == "float")
+	if (type == "float" || type == "FLOAT")
 	{
 		m_nodeType = NODE_RESULT::RESULT_FLOAT;
 	}

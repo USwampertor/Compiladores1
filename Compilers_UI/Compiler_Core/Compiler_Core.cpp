@@ -47,7 +47,8 @@ cli::array<String^>^ Manager::Compile(String^ src)
 		//"token_name token_type"
 	}
 	m_SintaxModule->SintaxStateMachine();
-	if(m_SymbolsTable->SymbolExists("alfa")) compilationDetails[m_ErrorModule->ReturnNumberErrors()] = "( u w u)";
+	//if(m_SymbolsTable->SymbolExists("alfa")) compilationDetails[m_ErrorModule->ReturnNumberErrors()] = "( u w u)";
+	m_SemanticModule->CreateExpressionTrees();
 	///Second Stage: Syntactic stage
 	//
 	///Third Stage: Semantic stage

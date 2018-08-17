@@ -1,0 +1,75 @@
+ImageRuntimeVersion: v4.0.30319
+Assembly Compiler_Core, Version=1.0.*, Culture=Todos los idiomas (todos los países): 
+	hash=SHA1, flags=PublicKey
+Assembly mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Class CompilerCore.Compiler_ErrorModule: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Interfaces:
+    System.IDisposable
+  Methods:
+    AddError(ERROR_PHASE, Int32, String, String): PrivateScope, Public, HideBySig
+    ReturnNumberErrors(): PrivateScope, Public, HideBySig
+    ReturnMaxErrors(): PrivateScope, Public, HideBySig
+    ReturnErrorString(): PrivateScope, Public, HideBySig
+    Dispose(): PrivateScope, Public, Final, Virtual, HideBySig
+Struct CompilerCore.Compiler_Token: AutoLayout, AnsiClass, Class, Public, SequentialLayout, Sealed, BeforeFieldInit
+  :System.ValueType
+Struct CompilerCore.Compiler_Lexicon: AutoLayout, AnsiClass, Class, Public, SequentialLayout, Sealed, BeforeFieldInit
+  :System.ValueType
+Class CompilerCore.Manager: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Interfaces:
+    System.IDisposable
+  Methods:
+    Compile(String): PrivateScope, Public, HideBySig
+    Dispose(): PrivateScope, Public, Final, Virtual, HideBySig
+Struct CompilerCore.ERROR_PHASE: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
+  :System.Enum
+  Fields:
+    Int32 value__ : Public, SpecialName, RTSpecialName
+    CompilerCore.ERROR_PHASE LEXICO = 0 : Public, Static, Literal, HasDefault
+    CompilerCore.ERROR_PHASE SINTACTICO = 1 : Public, Static, Literal, HasDefault
+    CompilerCore.ERROR_PHASE SEMANTICO = 2 : Public, Static, Literal, HasDefault
+Struct CompilerCore.TOKEN_TYPE: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
+  :System.Enum
+  Fields:
+    Int32 value__ : Public, SpecialName, RTSpecialName
+    CompilerCore.TOKEN_TYPE UNDEFINED = 0 : Public, Static, Literal, HasDefault
+    CompilerCore.TOKEN_TYPE ID = 1 : Public, Static, Literal, HasDefault
+    CompilerCore.TOKEN_TYPE INT = 2 : Public, Static, Literal, HasDefault
+    CompilerCore.TOKEN_TYPE FLOAT = 3 : Public, Static, Literal, HasDefault
+    CompilerCore.TOKEN_TYPE STRING = 4 : Public, Static, Literal, HasDefault
+    CompilerCore.TOKEN_TYPE KEYWORD = 5 : Public, Static, Literal, HasDefault
+    CompilerCore.TOKEN_TYPE RELATIONAL_OP = 6 : Public, Static, Literal, HasDefault
+    CompilerCore.TOKEN_TYPE ARITHMETIC_OP = 7 : Public, Static, Literal, HasDefault
+    CompilerCore.TOKEN_TYPE LOGICAL_OP = 8 : Public, Static, Literal, HasDefault
+    CompilerCore.TOKEN_TYPE NEGATION_OP = 9 : Public, Static, Literal, HasDefault
+    CompilerCore.TOKEN_TYPE SEPARATOR = 10 : Public, Static, Literal, HasDefault
+    CompilerCore.TOKEN_TYPE ASIGN = 11 : Public, Static, Literal, HasDefault
+    CompilerCore.TOKEN_TYPE DIMENSIONS = 12 : Public, Static, Literal, HasDefault
+    CompilerCore.TOKEN_TYPE GROUPING = 13 : Public, Static, Literal, HasDefault
+Struct CompilerCore.LEXIC_STATE: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
+  :System.Enum
+  Fields:
+    Int32 value__ : Public, SpecialName, RTSpecialName
+    CompilerCore.LEXIC_STATE START = 0 : Public, Static, Literal, HasDefault
+    CompilerCore.LEXIC_STATE PARSING_ID = 1 : Public, Static, Literal, HasDefault
+    CompilerCore.LEXIC_STATE PARSING_INT = 2 : Public, Static, Literal, HasDefault
+    CompilerCore.LEXIC_STATE PARSING_FLOAT = 3 : Public, Static, Literal, HasDefault
+    CompilerCore.LEXIC_STATE PARSING_CHAR = 4 : Public, Static, Literal, HasDefault
+    CompilerCore.LEXIC_STATE PARSING_RELATIONAL = 5 : Public, Static, Literal, HasDefault
+    CompilerCore.LEXIC_STATE PARSING_ARITHMETIC = 6 : Public, Static, Literal, HasDefault
+    CompilerCore.LEXIC_STATE PARSING_LOGICAL = 7 : Public, Static, Literal, HasDefault
+    CompilerCore.LEXIC_STATE PARSING_SEPARATOR = 8 : Public, Static, Literal, HasDefault
+    CompilerCore.LEXIC_STATE PARSING_DIMENSION = 9 : Public, Static, Literal, HasDefault
+    CompilerCore.LEXIC_STATE PARSING_GROUPING = 10 : Public, Static, Literal, HasDefault
+    CompilerCore.LEXIC_STATE PARSING_COMMENTARY = 11 : Public, Static, Literal, HasDefault
+Struct CompilerCore.Compiler_SymbolsTable: AutoLayout, AnsiClass, Class, Public, SequentialLayout, Sealed, BeforeFieldInit
+  :System.ValueType

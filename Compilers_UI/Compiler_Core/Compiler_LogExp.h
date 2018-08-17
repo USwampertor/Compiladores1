@@ -43,9 +43,14 @@ namespace CompilerCore
 		bool Operand(const Compiler_Token* token)
 		{
 			if (
-				token->GetType() == "ID" ||
-				token->GetType() == "INT" ||
-				token->GetType() == "FLOAT")
+				token->GetType() == "id"   ||
+				token->GetType() == "int"  ||
+				token->GetType() == "float"||
+				token->GetType() == "ID"   ||
+				token->GetType() == "INT"  ||
+				token->GetType() == "FLOAT"||
+				token->GetLex()  == "true" || 
+				token->GetLex()  == "false" )
 			{
 				return true;
 			}

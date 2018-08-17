@@ -1,0 +1,24 @@
+c:\users\propietario\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\bin\Debug\Compilers_UI.exe.config
+c:\users\propietario\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\bin\Debug\Compilers_UI.exe
+c:\users\propietario\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\bin\Debug\Compilers_UI.pdb
+c:\users\propietario\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\bin\Debug\Compiler_Core.dll
+c:\users\propietario\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\bin\Debug\Compiler_Core.pdb
+c:\users\propietario\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\obj\Debug\Compilers_UI.csprojResolveAssemblyReference.cache
+c:\users\propietario\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\obj\Debug\Compilers_UI.Form1.resources
+c:\users\propietario\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\obj\Debug\Compilers_UI.Properties.Resources.resources
+c:\users\propietario\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\obj\Debug\Compilers_UI.csproj.GenerateResource.Cache
+c:\users\propietario\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\obj\Debug\Compilers_UI.exe
+c:\users\propietario\documents\visual studio 2015\Projects\Compilers_UI\Compilers_UI\obj\Debug\Compilers_UI.pdb
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\bin\Debug\Compilers_UI.exe.config
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\bin\Debug\Compilers_UI.exe
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\bin\Debug\Compilers_UI.pdb
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\bin\Debug\Compiler_Core.dll
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\bin\Debug\Compiler_Core.pdb
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\obj\Debug\Compilers_UI.csprojAssemblyReference.cache
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\obj\Debug\Compilers_UI.Form1.resources
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\obj\Debug\Compilers_UI.Properties.Resources.resources
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\obj\Debug\Compilers_UI.csproj.GenerateResource.cache
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\obj\Debug\Compilers_UI.csproj.CoreCompileInputs.cache
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\obj\Debug\Compilers_UI.csproj.CopyComplete
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\obj\Debug\Compilers_UI.exe
+C:\Users\PROPIETARIO\Documents\6to Cuatri\Compiladores1\Compilers_UI\Compilers_UI\obj\Debug\Compilers_UI.pdb
